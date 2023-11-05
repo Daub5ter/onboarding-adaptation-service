@@ -179,9 +179,9 @@ func (app *Config) Update(w http.ResponseWriter, r *http.Request) {
 	var requestPayload struct {
 		Email       string `json:"email"`
 		EmailChange string `json:"email_change"`
-		FirstName   string `json:"first_name,omitempty,omitempty"`
-		LastName    string `json:"last_name,omitempty,omitempty"`
-		Active      int    `json:"active,omitempty"`
+		FirstName   string `json:"first_name,omitempty"`
+		LastName    string `json:"last_name,omitempty"`
+		Profession  string `json:"profession"`
 	}
 
 	err := app.readJSON(w, r, &requestPayload)
@@ -201,14 +201,14 @@ func (app *Config) Update(w http.ResponseWriter, r *http.Request) {
 	if requestPayload.EmailChange != "" {
 		user.Email = requestPayload.EmailChange
 	}
-	if requestPayload.Active != user.Active {
-		user.Active = requestPayload.Active
-	}
 	if requestPayload.FirstName != "" {
 		user.FirstName = requestPayload.FirstName
 	}
 	if requestPayload.LastName != "" {
 		user.LastName = requestPayload.LastName
+	}
+	if requestPayload.LastName != "" {
+		user.Profession = requestPayload.Profession
 	}
 
 	// update user

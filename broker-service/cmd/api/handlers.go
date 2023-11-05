@@ -32,11 +32,11 @@ type AuthPayload struct {
 }
 
 type RegPayload struct {
-	Email     string `json:"email"`
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name,omitempty"`
-	Password  string `json:"password"`
-	Active    int    `json:"active"`
+	Email      string `json:"email"`
+	FirstName  string `json:"first_name,omitempty"`
+	LastName   string `json:"last_name,omitempty"`
+	Password   string `json:"password"`
+	Profession string `json:"profession"`
 }
 
 type UpdatePayload struct {
@@ -44,7 +44,7 @@ type UpdatePayload struct {
 	EmailChange string `json:"email_change"`
 	FirstName   string `json:"first_name,omitempty,omitempty"`
 	LastName    string `json:"last_name,omitempty,omitempty"`
-	Active      int    `json:"active,omitempty"`
+	Profession  string `json:"profession"`
 }
 
 type ChPasswordPayload struct {
