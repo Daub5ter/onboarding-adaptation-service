@@ -1,0 +1,255 @@
+example of js script + html code to check payload from server:
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="mt-5">Change params</h1>
+            <hr>
+            <form method="post" id="main-form" class="mt-2">
+                <div class="mt-2">
+                    <label for="email">E-mail</label>
+                    <input type="email" name="email" id="email">
+                </div>
+                <div class="mt-2">
+                    <label for="new-email">New E-mail</label>
+                    <input type="email" name="new-email" id="new-email">
+                </div>
+                <div class="mt-2">
+                    <label for="first-name">First Name</label>
+                    <input type="text" name="first-name" id="first-name">
+                </div>
+                <div class="mt-2">
+                    <label for="last-name">Last Name</label>
+                    <input type="text" name="last-name" id="last-name">
+                </div>
+                <div class="mt-2">
+                    <label for="active">Активность</label>
+                    <select name="active" id="active">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                    </select>
+                </div>
+                <button type="submit">Отправить</button>
+            </form>
+
+            <h1 class="mt-5">Find user</h1>
+            <hr>
+            <div class="mt-2">
+                <span>Find user</span>
+                <input type="email" placeholder="Type email" id="InputEmail">
+                <button type="button" onclick="getInputValueEmail();">Get user</button>
+            </div>
+
+            <h1 class="mt-5">Test microservices</h1>
+            <hr>
+            <a id="authBrokerBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Auth</a>
+            <a id="getAllBrokerBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Get All</a>
+
+            <div id="output" class="mt-5" style="outline: 1px solid silver; padding: 2em;">
+                <span class="text-muted">Output shows here...</span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h4 class="mt-5">Sent</h4>
+            <div class="mt-1" style="outline: 1px solid silver; padding: 2em;">
+                <pre id="payload"><span class="text-muted">Nothing sent yet...</span></pre>
+            </div>
+        </div>
+        <div class="col">
+            <h4 class="mt-5">Received</h4>
+            <div class="mt-1" style="outline: 1px solid silver; padding: 2em;">
+                <pre id="received"><span class="text-muted">Nothing received yet...</span></pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // buttons
+    let authBrokerBtn = document.getElementById("authBrokerBtn");
+    let getAllBrokerBtn = document.getElementById("getAllBrokerBtn");
+
+    // payload interfaces
+    let output = document.getElementById("output");
+    let sent = document.getElementById("payload");
+    let received = document.getElementById("received");
+
+    // button listener
+    getAllBrokerBtn.addEventListener("click", function() {
+        // create request
+        // action without params (all actions in broker-service/cmd/api/handlers)
+        const payload = {
+            action: "get_all",
+        }
+
+        // body of request
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+
+        const body = {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: headers,
+        }
+
+        // check the localhost with port 8080, which listen in docker-compose
+        // handle - is route (all routes in broker-service/cmd/api/routes)
+        fetch("http:\/\/localhost:8080/handle", body)
+            .then((response) => response.json())
+            .then((data) => {
+                // pull response in our payload interfaces
+                sent.innerHTML = "get all users"
+                received.innerHTML = JSON.stringify(data, undefined, 4);
+                if (data.error) {
+                    output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
+                } else {
+                    output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+                }
+            })
+            .catch((error) => {
+                output.innerHTML += "<br><br>Error: " + error;
+            })
+    })
+
+    // button listener
+    authBrokerBtn.addEventListener("click", function() {
+        // create request
+        // action with params auth (all actions in broker-service/cmd/api/handlers)
+        const payload = {
+            action: "auth",
+            auth: {
+                email: "admin@example.com",
+                password: "verysecret",
+            }
+        }
+
+        // body of request
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+
+        const body = {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: headers,
+        }
+
+        // check the localhost with port 8080, which listen in docker-compose
+        // handle - is route (all routes in broker-service/cmd/api/routes)
+        fetch("http:\/\/localhost:8080/handle", body)
+            .then((response) => response.json())
+            .then((data) => {
+                // pull response in our payload interfaces
+                sent.innerHTML = JSON.stringify(payload, undefined, 4);
+                received.innerHTML = JSON.stringify(data, undefined, 4);
+                if (data.error) {
+                    output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
+                } else {
+                    output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+                }
+            })
+            .catch((error) => {
+                output.innerHTML += "<br><br>Error: " + error;
+            })
+    })
+
+    // function of input value + button listen
+    function getInputValueEmail(){
+        // get email value
+        var email = document.getElementById("InputEmail").value;
+
+        // create request
+        // action with params get_by_email (all actions in broker-service/cmd/api/handlers)
+        const payload = {
+            action: "get_by_email",
+            get_by_email: {
+                email: email,
+            }
+        }
+
+        // body of request
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+
+        const body = {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: headers,
+        }
+
+        // check the localhost with port 8080, which listen in docker-compose
+        // handle - is route (all routes in broker-service/cmd/api/routes)
+        fetch("http:\/\/backend/handle", body)
+            .then((response) => response.json())
+            .then((data) => {
+                // pull response in our payload interfaces
+                sent.innerHTML = JSON.stringify(payload, undefined, 4);
+                received.innerHTML = JSON.stringify(data, undefined, 4);
+                if (data.error) {
+                    output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
+                } else {
+                    output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+                }
+            })
+            .catch((error) => {
+                output.innerHTML += "<br><br>Error: " + error;
+            })
+    }
+
+    // function of form + button listen
+    document.getElementById("main-form").addEventListener("submit", checkFormUpdate)
+
+    function checkFormUpdate(event) {
+        // event, which helps not to reload page of website when submit form
+        event.preventDefault();
+
+        // get values
+        let email = document.getElementById("email").value;
+        let newEmail = document.getElementById("new-email").value;
+        let firstName = document.getElementById("first-name").value;
+        let lastName = document.getElementById("last-name").value;
+        let active = document.getElementById("active").value;
+
+        // create request
+        // action with params get_by_email (all actions in broker-service/cmd/api/handlers)
+        const payload = {
+            action: "update",
+            update: {
+                email: email,
+                email_change: newEmail,
+                first_name: firstName,
+                last_name: lastName,
+                active: Number(active),
+            }
+        }
+
+        // body of request
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json");
+
+        const body = {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: headers,
+        }
+
+        // check the localhost with port 8080, which listen in docker-compose
+        // handle - is route (all routes in broker-service/cmd/api/routes)
+        fetch("http:\/\/backend/handle", body)
+            .then((response) => response.json())
+            .then((data) => {
+                // pull response in our payload interfaces
+                sent.innerHTML = JSON.stringify(payload, undefined, 4);
+                received.innerHTML = JSON.stringify(data, undefined, 4);
+                if (data.error) {
+                    output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
+                } else {
+                    output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+                }
+            })
+            .catch((error) => {
+                output.innerHTML += "<br><br>Error: " + error;
+            })
+    }
+</script>

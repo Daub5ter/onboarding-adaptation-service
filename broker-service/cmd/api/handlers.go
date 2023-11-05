@@ -66,15 +66,6 @@ type LogPayload struct {
 	Data string `json:"data"`
 }
 
-func (app *Config) Broker(w http.ResponseWriter, r *http.Request) {
-	payload := jsonResponse{
-		Error:   false,
-		Message: "Hit the broker",
-	}
-
-	app.writeJSON(w, http.StatusOK, payload)
-}
-
 // HandleSubmission is the main point of entry into the broker. It accepts a JSON
 // payload and performs an action based on the value of "action" in that JSON.
 func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
