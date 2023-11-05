@@ -50,20 +50,9 @@ build_mail:
 
 ## build_front: builds the front end binary
 build_front:
-	@echo "Building front end binary..."
+	@echo "Building front end..."
 	cd ../front-end && env CGO_ENABLED=0 go build -o ${FRONT_END_BINARY} ./cmd/web
 	@echo "Done!"
-
-## start: starts the front end
-start: build_front
-	@echo "Starting front end"
-	cd ../front-end && ./${FRONT_END_BINARY} &
-
-## stop: stop the front end
-stop:
-	@echo "Stopping front end..."
-	@-pkill -SIGTERM -f "./${FRONT_END_BINARY}"
-	@echo "Stopped front end!"
 
 build_swarm:
 	docker stack deploy -c swarm.yml myapp
