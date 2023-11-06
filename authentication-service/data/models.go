@@ -39,8 +39,8 @@ type User struct {
 	LastName   string    `json:"last_name,omitempty"`
 	Password   string    `json:"-"`
 	Profession string    `json:"profession"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	CreatedAt  time.Time `json:"created_at,omitempty"`
+	UpdatedAt  time.Time `json:"updated_at,omitempty"`
 }
 
 // GetAll returns a slice of all users, sorted by last name

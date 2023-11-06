@@ -29,11 +29,11 @@ func (app *Config) GetByEmail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// log getByEmail
-	err = app.logRequest("receive user", fmt.Sprintf("%s received", user.Email))
+	/*err = app.logRequest("receive user", fmt.Sprintf("%s received", user.Email))
 	if err != nil {
 		app.errorJSON(w, err)
 		return
-	}
+	}*/
 
 	payload := jsonResponse{
 		Error:   false,
@@ -61,17 +61,19 @@ func (app *Config) Registrate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// log registrate
-	err = app.logRequest("registrated", fmt.Sprintf("%s registrated in", requestPayload.Email))
+	/*err = app.logRequest("registrated", fmt.Sprintf("%s registrated in", requestPayload.Email))
 	if err != nil {
 		app.errorJSON(w, err)
 		return
-	}
+	}*/
 
 	payload := jsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("Created user with id %s", id),
 		Data:    id,
 	}
+
+	log.Println(payload)
 
 	app.writeJSON(w, http.StatusCreated, payload)
 }
@@ -85,11 +87,11 @@ func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// log getAll
-	err = app.logRequest("receive users", fmt.Sprintf("received %v users", len(users)))
+	/*err = app.logRequest("receive users", fmt.Sprintf("received %v users", len(users)))
 	if err != nil {
 		app.errorJSON(w, err)
 		return
-	}
+	}*/
 
 	payload := jsonResponse{
 		Error:   false,
