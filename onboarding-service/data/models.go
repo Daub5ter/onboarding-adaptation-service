@@ -1,7 +1,9 @@
 package data
 
 import (
+	"context"
 	"database/sql"
+	"log"
 	"time"
 )
 
@@ -14,11 +16,14 @@ var db *sql.DB
 func New(dbPool *sql.DB) Models {
 	db = dbPool
 
-	return Models{}
+	return Models{
+		Knowledge:      Knowledge{},
+		UsersKnowledge: UsersKnowledge{},
+	}
 }
 
 type Models struct {
-	Info           Knowledge
+	Knowledge      Knowledge
 	UsersKnowledge UsersKnowledge
 }
 
@@ -34,4 +39,38 @@ type UsersKnowledge struct {
 	UserID      int       `json:"user_id"`
 	KnowledgeID int       `json:"knowledge_id"`
 	SolvedAt    time.Time `json:"solved_at,omitempty"`
+}
+
+func (u *Knowledge) GetAll() ([]*Knowledge, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `select id, title, description, created_at, updated_at from knowledges order by title`
+
+	rows, err := db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var knowledges []*Knowledge
+
+	for rows.Next() {
+		var knowledge Knowledge
+		err := rows.Scan(
+			&knowledge.ID,
+			&knowledge.Title,
+			&knowledge.Description,
+			&knowledge.CreatedAt,
+			&knowledge.UpdatedAt,
+		)
+		if err != nil {
+			log.Println("Error scanning", err)
+			return nil, err
+		}
+
+		knowledges = append(knowledges, &knowledge)
+	}
+
+	return knowledges, nil
 }

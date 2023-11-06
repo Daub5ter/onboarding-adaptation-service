@@ -49,7 +49,7 @@ func (u *User) GetAll() ([]*User, error) {
 	defer cancel()
 
 	query := `select id, email, first_name, last_name, password, profession, created_at, updated_at
-	from users order by last_name`
+	from users order by first_name`
 
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {

@@ -9,7 +9,7 @@ CREATE TABLE users (
 	updated_at timestamp NULL
 );
 
-CREATE TABLE knowledge (
+CREATE TABLE knowledges (
 	id serial primary key NOT null,
 	title varchar NOT NULL,
 	description text NULL,
@@ -17,10 +17,16 @@ CREATE TABLE knowledge (
 	updated_at timestamp NULL
 );
 
-create table public.users_knowledge
+create table users_knowledges
 (
-	users_id int references users(id),
-	knowledge_id int references knowledge(id),
+	user_id int references users(id),
+	knowledge_id int references knowledges(id),
 	solved_at timestamp NULL,
-	constraint users_knowledge_pk primary key (users_id, knowledge_id)
+	constraint users_knowledges_pk primary key (user_id, knowledge_id)
 );
+
+INSERT INTO public.users
+(email,first_name,last_name,"password",profession,created_at,updated_at) VALUES
+('accountant@test.com','accountant','test','$2a$12$KG4QeMLI7SjVcRVcn1tz9.YuZ.qjlO35oMWgO2Eqkv9O5/Uz6.CUG','','2023-11-06 15:10:33.928984','2023-11-06 15:10:33.928985'),
+('sysadmin@test.com','sysadmin','test','$2a$12$EI6VAOqythxyy2lkhOvrLuWjXkpvrdJqWzyxC9oopSnThjnFczd6q','','2023-11-06 15:13:33.691082','2023-11-06 15:13:33.691082'),
+('employer@test.com','employer','test','$2a$12$3aRSQ9tALryMnC4fG3rGkuJ1urKUZt09QTX5SbcyaABMgd9R1kWqW','','2023-11-06 15:15:40.920456','2023-11-06 15:15:40.920456');
