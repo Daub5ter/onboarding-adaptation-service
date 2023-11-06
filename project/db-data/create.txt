@@ -1,0 +1,26 @@
+CREATE TABLE users (
+	id serial primary key NOT null,
+	email varchar NOT NULL,
+	first_name varchar NULL,
+	last_name varchar NULL,
+	"password" varchar NOT NULL,
+	profession varchar NULL,
+	created_at timestamp NULL,
+	updated_at timestamp NULL
+);
+
+CREATE TABLE knowledge (
+	id serial primary key NOT null,
+	title varchar NOT NULL,
+	description text NULL,
+	created_at timestamp NULL,
+	updated_at timestamp NULL
+);
+
+create table public.users_knowledge
+(
+	users_id int references users(id),
+	knowledge_id int references knowledge(id),
+	solved_at timestamp NULL,
+	constraint users_knowledge_pk primary key (users_id, knowledge_id)
+);
