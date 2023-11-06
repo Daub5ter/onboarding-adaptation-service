@@ -8,15 +8,13 @@ import (
 )
 
 type RequestPayload struct {
-	Action     string            `json:"action"`
-	Auth       AuthPayload       `json:"auth,omitempty"`
-	Reg        RegPayload        `json:"reg,omitempty"`
-	Update     UpdatePayload     `json:"update,omitempty"`
-	ChPassword ChPasswordPayload `json:"change_password,omitempty"`
-	Email      EmailPayload      `json:"get_by_email,omitempty"`
-	ID         IDPayload         `json:"get_by_id,omitempty"`
-	Log        LogPayload        `json:"log,omitempty"`
-	Mail       MailPayload       `json:"mail,omitempty"`
+	Action string          `json:"action"`
+	Auth   AuthUserPayload `json:"auth,omitempty"`
+	Reg    RegUserPayload  `json:"reg,omitempty"`
+	Email  EmailPayload    `json:"get_by_email,omitempty"`
+	ID     IDPayload       `json:"get_by_id,omitempty"`
+	Log    LogPayload      `json:"log,omitempty"`
+	Mail   MailPayload     `json:"mail,omitempty"`
 }
 
 type MailPayload struct {
@@ -26,31 +24,17 @@ type MailPayload struct {
 	Message string `json:"message"`
 }
 
-type AuthPayload struct {
+type AuthUserPayload struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-type RegPayload struct {
+type RegUserPayload struct {
 	Email      string `json:"email"`
 	FirstName  string `json:"first_name,omitempty"`
 	LastName   string `json:"last_name,omitempty"`
 	Password   string `json:"password"`
 	Profession string `json:"profession"`
-}
-
-type UpdatePayload struct {
-	Email       string `json:"email"`
-	EmailChange string `json:"email_change"`
-	FirstName   string `json:"first_name,omitempty,omitempty"`
-	LastName    string `json:"last_name,omitempty,omitempty"`
-	Profession  string `json:"profession"`
-}
-
-type ChPasswordPayload struct {
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	NewPassword string `json:"new_password"`
 }
 
 type EmailPayload struct {
@@ -78,18 +62,18 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch requestPayload.Action {
-	case "auth":
-		app.authenticate(w, requestPayload.Auth)
-	case "reg":
-		app.registrate(w, requestPayload.Reg)
-	case "get_all":
-		app.getAll(w)
-	case "get_by_email":
-		app.getByEmail(w, requestPayload.Email)
-	case "get_by_id":
-		app.getByID(w, requestPayload.ID)
-	case "log":
-		app.logItem(w, requestPayload.Log)
+	case "auth_user":
+		app.authenticateUser(w, requestPayload.Auth)
+	case "reg_user":
+		app.registrateUser(w, requestPayload.Reg)
+	case "get_all_user":
+		app.getAllUser(w)
+	case "get_user_by_email":
+		app.getByEmailUser(w, requestPayload.Email)
+	case "get_user_by_id":
+		app.getByIDUser(w, requestPayload.ID)
+	case "get_all_knowledge":
+		app.getAllKnowledge(w)
 	case "mail":
 		app.sendMail(w, requestPayload.Mail)
 
@@ -99,7 +83,7 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 }
 
 // calls the authentication microservice and sends back the appropriate response
-func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
+func (app *Config) authenticateUser(w http.ResponseWriter, a AuthUserPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(a, "", "\t")
 
@@ -150,7 +134,7 @@ func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
 	app.writeJSON(w, http.StatusAccepted, payload)
 }
 
-func (app *Config) getAll(w http.ResponseWriter) {
+func (app *Config) getAllUser(w http.ResponseWriter) {
 	// call the service
 	request, err := http.NewRequest("GET", "http://authentication-service/get_all", nil)
 	if err != nil {
@@ -198,7 +182,7 @@ func (app *Config) getAll(w http.ResponseWriter) {
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
-func (app *Config) getByEmail(w http.ResponseWriter, e EmailPayload) {
+func (app *Config) getByEmailUser(w http.ResponseWriter, e EmailPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(e, "", "\t")
 
@@ -249,7 +233,7 @@ func (app *Config) getByEmail(w http.ResponseWriter, e EmailPayload) {
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
-func (app *Config) getByID(w http.ResponseWriter, i IDPayload) {
+func (app *Config) getByIDUser(w http.ResponseWriter, i IDPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(i, "", "\t")
 
@@ -300,7 +284,7 @@ func (app *Config) getByID(w http.ResponseWriter, i IDPayload) {
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
-func (app *Config) registrate(w http.ResponseWriter, r RegPayload) {
+func (app *Config) registrateUser(w http.ResponseWriter, r RegUserPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(r, "", "\t")
 
@@ -351,24 +335,15 @@ func (app *Config) registrate(w http.ResponseWriter, r RegPayload) {
 	app.writeJSON(w, http.StatusCreated, payload)
 }
 
-// cals the logger microservice and sends back the appropriate response
-func (app *Config) logItem(w http.ResponseWriter, entry LogPayload) {
-	// create some json we'll send to the auth microservice
-	jsonData, _ := json.MarshalIndent(entry, "", "\t")
-
+func (app *Config) getAllKnowledge(w http.ResponseWriter) {
 	// call the service
-	logServiceURL := "http://logger-service/log"
-
-	request, err := http.NewRequest("POST", logServiceURL, bytes.NewBuffer(jsonData))
+	request, err := http.NewRequest("GET", "http://onboarding-service/get_all", nil)
 	if err != nil {
 		app.errorJSON(w, err)
 		return
 	}
 
-	request.Header.Set("Content-Type", "application/json")
-
 	client := &http.Client{}
-
 	response, err := client.Do(request)
 	if err != nil {
 		app.errorJSON(w, err)
@@ -377,17 +352,35 @@ func (app *Config) logItem(w http.ResponseWriter, entry LogPayload) {
 	defer response.Body.Close()
 
 	// make sure we get back the correct status code
-	if response.StatusCode != http.StatusAccepted {
+	if response.StatusCode == http.StatusUnauthorized {
+		app.errorJSON(w, errors.New("invalid credentials"))
+		return
+	} else if response.StatusCode != http.StatusOK {
+		app.errorJSON(w, errors.New("error calling auth service"))
+		return
+	}
+
+	// create a variable we'll read response.Body into
+	var jsonFromService jsonResponse
+
+	// decode the json from the auth service
+	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
+	if err != nil {
 		app.errorJSON(w, err)
 		return
 	}
 
-	// create json response
+	if jsonFromService.Error {
+		app.errorJSON(w, err, http.StatusUnauthorized)
+		return
+	}
+
 	var payload jsonResponse
 	payload.Error = false
-	payload.Message = "Logged"
+	payload.Message = "Received knowledges"
+	payload.Data = jsonFromService.Data
 
-	app.writeJSON(w, http.StatusAccepted, payload)
+	app.writeJSON(w, http.StatusOK, payload)
 }
 
 func (app *Config) sendMail(w http.ResponseWriter, msg MailPayload) {
