@@ -8,13 +8,14 @@ import (
 )
 
 type RequestPayload struct {
-	Action string          `json:"action"`
-	Auth   AuthUserPayload `json:"auth,omitempty"`
-	Reg    RegUserPayload  `json:"reg,omitempty"`
-	Email  EmailPayload    `json:"get_by_email,omitempty"`
-	ID     IDPayload       `json:"get_by_id,omitempty"`
-	Log    LogPayload      `json:"log,omitempty"`
-	Mail   MailPayload     `json:"mail,omitempty"`
+	Action     string                 `json:"action"`
+	Auth       AuthUserPayload        `json:"auth,omitempty"`
+	Reg        RegUserPayload         `json:"reg,omitempty"`
+	Email      EmailPayload           `json:"email,omitempty"`
+	ID         IDPayload              `json:"id,omitempty"`
+	Known      KnowledgePayload       `json:"known,omitempty"`
+	UsersKnown UsersKnowledgesPayload `json:"users_known"`
+	Mail       MailPayload            `json:"mail,omitempty"`
 }
 
 type MailPayload struct {
@@ -45,9 +46,15 @@ type IDPayload struct {
 	ID int `json:"id"`
 }
 
-type LogPayload struct {
-	Name string `json:"name"`
-	Data string `json:"data"`
+type KnowledgePayload struct {
+	ID          int    `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+type UsersKnowledgesPayload struct {
+	UserID      int `json:"user_id"`
+	KnowledgeID int `json:"knowledge_id"`
 }
 
 // HandleSubmission is the main point of entry into the broker. It accepts a JSON
@@ -74,6 +81,12 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 		app.getByIDUser(w, requestPayload.ID)
 	case "get_all_knowledge":
 		app.getAllKnowledge(w, requestPayload.ID)
+	case "get_percent":
+		app.getPercent(w, requestPayload.ID)
+	case "add_knowledge":
+		app.addKnowledge(w, requestPayload.Known)
+	case "add_users_knowledge":
+		app.addUsersKnowledge(w, requestPayload.UsersKnown)
 	case "mail":
 		app.sendMail(w, requestPayload.Mail)
 
@@ -339,7 +352,7 @@ func (app *Config) registrateUser(w http.ResponseWriter, r RegUserPayload) {
 	app.writeJSON(w, http.StatusCreated, payload)
 }
 
-// / getAllKnowledge return user`s solved and unsolved knowledge
+// getAllKnowledge return user`s solved and unsolved knowledge
 func (app *Config) getAllKnowledge(w http.ResponseWriter, i IDPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(i, "", "\t")
@@ -391,6 +404,163 @@ func (app *Config) getAllKnowledge(w http.ResponseWriter, i IDPayload) {
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
+// getPercent return percent of solved knowledge
+func (app *Config) getPercent(w http.ResponseWriter, i IDPayload) {
+	// create some json we'll send to the auth microservice
+	jsonData, _ := json.MarshalIndent(i, "", "\t")
+
+	// call the service
+	request, err := http.NewRequest("POST", "http://onboarding-service/get_percent", bytes.NewBuffer(jsonData))
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	defer response.Body.Close()
+
+	// make sure we get back the correct status code
+	if response.StatusCode == http.StatusUnauthorized {
+		app.errorJSON(w, errors.New("invalid credentials"))
+		return
+	} else if response.StatusCode != http.StatusOK {
+		app.errorJSON(w, errors.New("error calling auth service"))
+		return
+	}
+
+	// create a variable we'll read response.Body into
+	var jsonFromService jsonResponse
+
+	// decode the json from the auth service
+	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	if jsonFromService.Error {
+		app.errorJSON(w, err, http.StatusUnauthorized)
+		return
+	}
+
+	var payload jsonResponse
+	payload.Error = false
+	payload.Message = "Received percent"
+	payload.Data = jsonFromService.Data
+
+	app.writeJSON(w, http.StatusOK, payload)
+}
+
+// addKnowledge add the new knowledge
+func (app *Config) addKnowledge(w http.ResponseWriter, k KnowledgePayload) {
+	// create some json we'll send to the auth microservice
+	jsonData, _ := json.MarshalIndent(k, "", "\t")
+
+	// call the service
+	request, err := http.NewRequest("POST", "http://onboarding-service/add_known", bytes.NewBuffer(jsonData))
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	defer response.Body.Close()
+
+	// make sure we get back the correct status code
+	if response.StatusCode == http.StatusUnauthorized {
+		app.errorJSON(w, errors.New("invalid credentials"))
+		return
+	} else if response.StatusCode != http.StatusCreated {
+		app.errorJSON(w, errors.New("error calling auth service"))
+		return
+	}
+
+	// create a variable we'll read response.Body into
+	var jsonFromService jsonResponse
+
+	// decode the json from the auth service
+	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	if jsonFromService.Error {
+		app.errorJSON(w, err, http.StatusUnauthorized)
+		return
+	}
+
+	var payload jsonResponse
+	payload.Error = false
+	payload.Message = "Knowledge added"
+	payload.Data = jsonFromService.Data
+
+	app.writeJSON(w, http.StatusCreated, payload)
+}
+
+// addUsersKnowledge add the new users solved knowledge
+func (app *Config) addUsersKnowledge(w http.ResponseWriter, uk UsersKnowledgesPayload) {
+	// create some json we'll send to the auth microservice
+	jsonData, _ := json.MarshalIndent(uk, "", "\t")
+
+	// call the service
+	request, err := http.NewRequest("POST", "http://onboarding-service/add_users_known", bytes.NewBuffer(jsonData))
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	defer response.Body.Close()
+
+	// make sure we get back the correct status code
+	if response.StatusCode == http.StatusUnauthorized {
+		app.errorJSON(w, errors.New("invalid credentials"))
+		return
+	} else if response.StatusCode != http.StatusCreated {
+		app.errorJSON(w, errors.New("error calling auth service"))
+		return
+	}
+
+	// create a variable we'll read response.Body into
+	var jsonFromService jsonResponse
+
+	// decode the json from the auth service
+	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	if jsonFromService.Error {
+		app.errorJSON(w, err, http.StatusUnauthorized)
+		return
+	}
+
+	var payload jsonResponse
+	payload.Error = false
+	payload.Message = "Users knowledge added"
+	payload.Data = jsonFromService.Data
+
+	app.writeJSON(w, http.StatusCreated, payload)
+}
+
+// TODO sendMail
 func (app *Config) sendMail(w http.ResponseWriter, msg MailPayload) {
 	jsonData, _ := json.MarshalIndent(msg, "", "\t")
 
