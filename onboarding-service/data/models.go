@@ -51,7 +51,7 @@ func (k *Knowledge) GetAll() ([]*KnowledgeJoinUsersKnowledges, error) {
 	defer cancel()
 
 	query := `select id, title, description, created_at, updated_at from knowledges order by id`
-	quary := `select knowledges.*, users_knowledges.* from knowledges knowledges, users_knowledges users_knowledges 
+	query = `select knowledges.*, users_knowledges.* from knowledges knowledges, users_knowledges users_knowledges 
     	WHERE users_knowledges.knowledge_id = knowledges.id`
 
 	rows, err := db.QueryContext(ctx, query)
