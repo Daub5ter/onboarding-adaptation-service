@@ -25,6 +25,24 @@ create table users_knowledges
 	constraint users_knowledges_pk primary key (user_id, knowledge_id)
 );
 
+create table instructions
+(
+	id serial primary key,
+	title varchar null,
+	description text null,
+	db_path varchar null,
+	created_at timestamp NULL,
+	updated_at timestamp NULL
+);
+
+create table users_instructions
+(
+	user_id int references users(id),
+	instruction_id int references instructions(id),
+	solved_at timestamp NULL,
+	constraint users_instructions_pk primary key (user_id, instruction_id)
+);
+
 INSERT INTO public.users
 (email,first_name,last_name,"password",profession,created_at,updated_at) VALUES
 ('accountant@test.com','accountant','test','$2a$12$KG4QeMLI7SjVcRVcn1tz9.YuZ.qjlO35oMWgO2Eqkv9O5/Uz6.CUG','accountant','2023-11-06 15:10:33.928984','2023-11-06 15:10:33.928985'),
