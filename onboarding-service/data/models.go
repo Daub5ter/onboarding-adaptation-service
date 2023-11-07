@@ -41,11 +41,18 @@ type UsersKnowledges struct {
 	SolvedAt    time.Time `json:"solved_at,omitempty"`
 }
 
-func (k *Knowledge) GetAll() ([]*Knowledge, error) {
+type KnowledgeJoinUsersKnowledges struct {
+	Knowledge
+	UsersKnowledges
+}
+
+func (k *Knowledge) GetAll() ([]*KnowledgeJoinUsersKnowledges, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `select id, title, description, created_at, updated_at from knowledges order by title`
+	query := `select id, title, description, created_at, updated_at from knowledges order by id`
+	quary := `select knowledges.*, users_knowledges.* from knowledges knowledges, users_knowledges users_knowledges 
+    	WHERE users_knowledges.knowledge_id = knowledges.id`
 
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
@@ -53,10 +60,10 @@ func (k *Knowledge) GetAll() ([]*Knowledge, error) {
 	}
 	defer rows.Close()
 
-	var knowledges []*Knowledge
+	var knowledges []*KnowledgeJoinUsersKnowledges
 
 	for rows.Next() {
-		var knowledge Knowledge
+		var knowledge KnowledgeJoinUsersKnowledges
 		err = rows.Scan(
 			&knowledge.ID,
 			&knowledge.Title,
@@ -120,37 +127,39 @@ func (k *Knowledge) GetOne(id int) (*Knowledge, error) {
 	return &knowledge, nil
 }
 
-func (uk *UsersKnowledges) Insert(usersKnowledges UsersKnowledges) error {
+func (uk *UsersKnowledges) Insert(usersKnowledges UsersKnowledges) (time.Time, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	stmt := `insert into users_knowledges (user_id, knowledge_id, solved_at) values ($1, $2, $3)`
+	stmt := `insert into users_knowledges (user_id, knowledge_id, solved_at) values ($1, $2, $3) returning solved_at`
 
+	var solvedAt time.Time
 	err := db.QueryRowContext(ctx, stmt,
 		usersKnowledges.UserID,
 		usersKnowledges.KnowledgeID,
 		time.Now(),
-	).Scan()
+	).Scan(&solvedAt)
 
 	if err != nil {
-		return err
+		return time.Time{}, err
 	}
 
-	return nil
+	return solvedAt, nil
 }
 
 func (uk *UsersKnowledges) GetPercent(id int) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-
+	//TODO
 	var countUK int
 	query := `select count(*) from users_knowledges where user_id = $1`
 	row := db.QueryRowContext(ctx, query, id)
 
 	err := row.Scan(
-		countUK,
+		&countUK,
 	)
 	if err != nil {
+		log.Println("wtf", err)
 		return 0, err
 	}
 
@@ -159,13 +168,13 @@ func (uk *UsersKnowledges) GetPercent(id int) (int, error) {
 	row = db.QueryRowContext(ctx, query)
 
 	err = row.Scan(
-		countK,
+		&countK,
 	)
 	if err != nil {
 		return 0, err
 	}
 
-	percent := (countUK / countK) * 100
+	percent := countUK * 100 / countK
 
 	return percent, nil
 }
@@ -187,7 +196,7 @@ func (uk *UsersKnowledges) GetAll(id int) ([]*int, error) {
 	for rows.Next() {
 		var knowledgeID int
 		err = rows.Scan(
-			knowledgeID,
+			&knowledgeID,
 		)
 		if err != nil {
 			log.Println("Error scanning", err)

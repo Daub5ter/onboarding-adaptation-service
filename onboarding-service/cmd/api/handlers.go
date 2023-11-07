@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"onboarding/data"
 )
@@ -25,7 +26,7 @@ func (app *Config) GetKnownByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	payload := jsonResponse{
+	payload := JsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("received knowledge"),
 		Data:    knowledge,
@@ -50,7 +51,7 @@ func (app *Config) AddKnown(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	payload := jsonResponse{
+	payload := JsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("Created knowledge with id %s", id),
 		Data:    id,
@@ -69,17 +70,17 @@ func (app *Config) AddUsersKnown(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.Models.UsersKnowledges.Insert(requestPayload)
+	solvedAt, err := app.Models.UsersKnowledges.Insert(requestPayload)
 	if err != nil {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
 		return
 	}
 
-	payload := jsonResponse{
+	payload := JsonResponse{
 		Error: false,
 		Message: fmt.Sprintf("Created users knowledge with user id %v, knowledge id %v",
 			requestPayload.UserID, requestPayload.KnowledgeID),
-		Data: "",
+		Data: solvedAt,
 	}
 
 	app.writeJSON(w, http.StatusCreated, payload)
@@ -103,7 +104,7 @@ func (app *Config) GetPercentKnown(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	payload := jsonResponse{
+	payload := JsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("received percent of knowledge with user`s id: %v", requestPayload.ID),
 		Data:    percent,
@@ -117,24 +118,18 @@ func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
 	knowledges, err := app.Models.Knowledge.GetAll()
 	if err != nil {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
-		return
 	}
 
-	var requestPayload struct {
-		ID int `json:"id"`
-	}
+	//knownPayload, _ := json.Marshal(knowleages)
+	//IDsPayload, _ := json.Marshal(solvedKnowleages)
 
-	err = app.readJSON(w, r, &requestPayload)
-	if err != nil {
-		app.errorJSON(w, err, http.StatusBadRequest)
-		return
-	}
+	//bytes.NewBuffer(knownPayload)
+	//bytes.NewBuffer(IDsPayload)
 
-	usersKnowledgeIDs, err := app.Models.UsersKnowledges.GetAll(requestPayload.ID)
-	if err != nil {
-		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
-		return
-	}
+	log.Println("log.Println(&knowledges)")
+	log.Println(&knowledges)
+	log.Println(knowledges)
+	//log.Println(IDsPayload)
 
 	type responsePayload struct {
 		knowledge data.Knowledge
@@ -143,11 +138,11 @@ func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
 
 	var response []*responsePayload
 
-	for _, knowledge := range knowledges {
+	/*for _, knowledge := range knownPayload
 		var solved bool
 
-		for _, ukID := range usersKnowledgeIDs {
-			if knowledge.ID == *ukID {
+		for _, ukID := range IDsPayload {
+			if knowledge == ukID {
 				solved = true
 				break
 			}
@@ -158,9 +153,9 @@ func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
 		resp.solved = solved
 
 		response = append(response, &resp)
-	}
+	}*/
 
-	payload := jsonResponse{
+	payload := JsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("received all knowledge"),
 		Data:    response,
@@ -174,12 +169,11 @@ func (app *Config) GetAllKnown(w http.ResponseWriter, r *http.Request) {
 	knowledges, err := app.Models.Knowledge.GetAll()
 	if err != nil {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
-		return
 	}
 
-	payload := jsonResponse{
+	payload := JsonResponse{
 		Error:   false,
-		Message: fmt.Sprintf("Received %v knowledges", len(knowledges)),
+		Message: fmt.Sprintf("received all knowledge"),
 		Data:    knowledges,
 	}
 
@@ -195,18 +189,16 @@ func (app *Config) GetAllUsersKnown(w http.ResponseWriter, r *http.Request) {
 	err := app.readJSON(w, r, &requestPayload)
 	if err != nil {
 		app.errorJSON(w, err, http.StatusBadRequest)
-		return
 	}
 
 	usersKnowledge, err := app.Models.UsersKnowledges.GetAll(requestPayload.ID)
 	if err != nil {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
-		return
 	}
 
-	payload := jsonResponse{
+	payload := JsonResponse{
 		Error:   false,
-		Message: fmt.Sprintf("received all user`s knowledge with user`s id: %v", requestPayload.ID),
+		Message: fmt.Sprintf("received all knowledge"),
 		Data:    usersKnowledge,
 	}
 
