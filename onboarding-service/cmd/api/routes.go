@@ -23,7 +23,10 @@ func (app *Config) routes() http.Handler {
 
 	mux.Use(middleware.Heartbeat("/ping"))
 
-	mux.Get("/get_all", app.GetAll)
+	mux.Post("/get_all", app.GetAll)
+	mux.Post("/add_known", app.AddKnown)
+	mux.Post("/add_users_known", app.AddUsersKnown)
+	mux.Post("/get_percent", app.GetPercentKnown)
 
 	return mux
 }

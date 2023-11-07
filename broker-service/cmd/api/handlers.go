@@ -73,7 +73,7 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 	case "get_user_by_id":
 		app.getByIDUser(w, requestPayload.ID)
 	case "get_all_knowledge":
-		app.getAllKnowledge(w)
+		app.getAllKnowledge(w, requestPayload.ID)
 	case "mail":
 		app.sendMail(w, requestPayload.Mail)
 
@@ -82,7 +82,7 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// calls the authentication microservice and sends back the appropriate response
+// authenticateUser auth user with email and password
 func (app *Config) authenticateUser(w http.ResponseWriter, a AuthUserPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(a, "", "\t")
@@ -134,6 +134,7 @@ func (app *Config) authenticateUser(w http.ResponseWriter, a AuthUserPayload) {
 	app.writeJSON(w, http.StatusAccepted, payload)
 }
 
+// getAllUser return all users
 func (app *Config) getAllUser(w http.ResponseWriter) {
 	// call the service
 	request, err := http.NewRequest("GET", "http://authentication-service/get_all", nil)
@@ -182,6 +183,7 @@ func (app *Config) getAllUser(w http.ResponseWriter) {
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
+// getByEmailUser return user by email
 func (app *Config) getByEmailUser(w http.ResponseWriter, e EmailPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(e, "", "\t")
@@ -233,6 +235,7 @@ func (app *Config) getByEmailUser(w http.ResponseWriter, e EmailPayload) {
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
+// getByIDUser return user by ID
 func (app *Config) getByIDUser(w http.ResponseWriter, i IDPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(i, "", "\t")
@@ -284,6 +287,7 @@ func (app *Config) getByIDUser(w http.ResponseWriter, i IDPayload) {
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
+// registrateUser registrate user and return user`s ID
 func (app *Config) registrateUser(w http.ResponseWriter, r RegUserPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(r, "", "\t")
@@ -335,9 +339,13 @@ func (app *Config) registrateUser(w http.ResponseWriter, r RegUserPayload) {
 	app.writeJSON(w, http.StatusCreated, payload)
 }
 
-func (app *Config) getAllKnowledge(w http.ResponseWriter) {
+// / getAllKnowledge return user`s solved and unsolved knowledge
+func (app *Config) getAllKnowledge(w http.ResponseWriter, i IDPayload) {
+	// create some json we'll send to the auth microservice
+	jsonData, _ := json.MarshalIndent(i, "", "\t")
+
 	// call the service
-	request, err := http.NewRequest("GET", "http://onboarding-service/get_all", nil)
+	request, err := http.NewRequest("POST", "http://onboarding-service/get_all", bytes.NewBuffer(jsonData))
 	if err != nil {
 		app.errorJSON(w, err)
 		return
@@ -377,7 +385,7 @@ func (app *Config) getAllKnowledge(w http.ResponseWriter) {
 
 	var payload jsonResponse
 	payload.Error = false
-	payload.Message = "Received knowledges"
+	payload.Message = "Received knowledge"
 	payload.Data = jsonFromService.Data
 
 	app.writeJSON(w, http.StatusOK, payload)
