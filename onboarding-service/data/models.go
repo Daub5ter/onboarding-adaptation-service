@@ -41,18 +41,21 @@ type UsersKnowledges struct {
 	SolvedAt    time.Time `json:"solved_at,omitempty"`
 }
 
+type SolvedKnowledges struct {
+	Knowledge Knowledge `json:"knowledge"`
+	Solved    bool      `json:"solved"`
+}
+
 type KnowledgeJoinUsersKnowledges struct {
 	Knowledge
 	UsersKnowledges
 }
 
-func (k *Knowledge) GetAll() ([]*KnowledgeJoinUsersKnowledges, error) {
+func (k *Knowledge) GetAll() ([]*Knowledge, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
 	query := `select id, title, description, created_at, updated_at from knowledges order by id`
-	query = `select knowledges.*, users_knowledges.* from knowledges knowledges, users_knowledges users_knowledges 
-    	WHERE users_knowledges.knowledge_id = knowledges.id`
 
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
@@ -60,10 +63,10 @@ func (k *Knowledge) GetAll() ([]*KnowledgeJoinUsersKnowledges, error) {
 	}
 	defer rows.Close()
 
-	var knowledges []*KnowledgeJoinUsersKnowledges
+	var knowledges []*Knowledge
 
 	for rows.Next() {
-		var knowledge KnowledgeJoinUsersKnowledges
+		var knowledge Knowledge
 		err = rows.Scan(
 			&knowledge.ID,
 			&knowledge.Title,

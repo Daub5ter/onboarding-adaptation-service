@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -115,45 +117,68 @@ func (app *Config) GetPercentKnown(w http.ResponseWriter, r *http.Request) {
 
 // GetAll return user`s solved and unsolved knowledge
 func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
+	var knowns []data.Knowledge
+	var ids []int
+
 	knowledges, err := app.Models.Knowledge.GetAll()
 	if err != nil {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
 	}
 
-	//knownPayload, _ := json.Marshal(knowleages)
-	//IDsPayload, _ := json.Marshal(solvedKnowleages)
+	var requestPayload struct {
+		ID int `json:"id"`
+	}
 
-	//bytes.NewBuffer(knownPayload)
-	//bytes.NewBuffer(IDsPayload)
+	err = app.readJSON(w, r, &requestPayload)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+	}
 
-	log.Println("log.Println(&knowledges)")
-	log.Println(&knowledges)
-	log.Println(knowledges)
-	//log.Println(IDsPayload)
+	solvedKnowleages, err := app.Models.UsersKnowledges.GetAll(requestPayload.ID)
+	if err != nil {
+		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+	}
+
+	knownPayload, _ := json.Marshal(knowledges)
+	IDsPayload, _ := json.Marshal(solvedKnowleages)
+
+	bytes.NewBuffer(knownPayload)
+	bytes.NewBuffer(IDsPayload)
+
+	err = json.Unmarshal(knownPayload, &knowns)
+	if err != nil {
+		app.errorJSON(w, errors.New("error with unmarshal"), http.StatusBadGateway)
+	}
+	err = json.Unmarshal(IDsPayload, &ids)
+	if err != nil {
+		app.errorJSON(w, errors.New("error with unmarshal"), http.StatusBadGateway)
+	}
 
 	type responsePayload struct {
 		knowledge data.Knowledge
 		solved    bool
 	}
 
-	var response []*responsePayload
+	var response []*data.SolvedKnowledges
 
-	/*for _, knowledge := range knownPayload
+	for _, knowledge := range knowns {
 		var solved bool
 
-		for _, ukID := range IDsPayload {
-			if knowledge == ukID {
+		for _, ukID := range ids {
+			if knowledge.ID == ukID {
 				solved = true
 				break
 			}
 		}
 
-		var resp responsePayload
-		resp.knowledge = *knowledge
-		resp.solved = solved
+		var resp data.SolvedKnowledges
+		resp.Knowledge = knowledge
+		resp.Solved = solved
 
 		response = append(response, &resp)
-	}*/
+	}
+
+	log.Println("knowledges", response)
 
 	payload := JsonResponse{
 		Error:   false,

@@ -27,6 +27,6 @@ create table users_knowledges
 
 INSERT INTO public.users
 (email,first_name,last_name,"password",profession,created_at,updated_at) VALUES
-('accountant@test.com','accountant','test','$2a$12$KG4QeMLI7SjVcRVcn1tz9.YuZ.qjlO35oMWgO2Eqkv9O5/Uz6.CUG','','2023-11-06 15:10:33.928984','2023-11-06 15:10:33.928985'),
-('sysadmin@test.com','sysadmin','test','$2a$12$EI6VAOqythxyy2lkhOvrLuWjXkpvrdJqWzyxC9oopSnThjnFczd6q','','2023-11-06 15:13:33.691082','2023-11-06 15:13:33.691082'),
-('employer@test.com','employer','test','$2a$12$3aRSQ9tALryMnC4fG3rGkuJ1urKUZt09QTX5SbcyaABMgd9R1kWqW','','2023-11-06 15:15:40.920456','2023-11-06 15:15:40.920456');
+('accountant@test.com','accountant','test','$2a$12$KG4QeMLI7SjVcRVcn1tz9.YuZ.qjlO35oMWgO2Eqkv9O5/Uz6.CUG','accountant','2023-11-06 15:10:33.928984','2023-11-06 15:10:33.928985'),
+('sysadmin@test.com','sysadmin','test','$2a$12$EI6VAOqythxyy2lkhOvrLuWjXkpvrdJqWzyxC9oopSnThjnFczd6q','sysadmin','2023-11-06 15:13:33.691082','2023-11-06 15:13:33.691082'),
+('employer@test.com','employer','test','$2a$12$3aRSQ9tALryMnC4fG3rGkuJ1urKUZt09QTX5SbcyaABMgd9R1kWqW','employer','2023-11-06 15:15:40.920456','2023-11-06 15:15:40.920456');

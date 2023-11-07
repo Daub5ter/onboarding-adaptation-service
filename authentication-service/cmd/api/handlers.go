@@ -4,6 +4,7 @@ import (
 	"authentication/data"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -71,6 +72,8 @@ func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
 		return
 	}
+
+	log.Println("users", users)
 
 	payload := jsonResponse{
 		Error:   false,
