@@ -12,7 +12,7 @@ up:
 	@echo "Docker images started!"
 
 ## up_build: stops docker-compose (if running), builds all projects and starts docker compose
-up_build: build_broker build_auth build_onboarding build_adaptation
+up_build: build_broker build_auth build_onboarding build_adaptation build_mail
 	@echo "Stopping docker images (if running...)"
 	docker-compose down
 	@echo "Building (when required) and starting docker images..."
@@ -60,12 +60,21 @@ build_front:
 	cd ../front-end && env CGO_ENABLED=0 go build -o ${FRONT_END_BINARY} ./cmd/web
 	@echo "Done!"
 
+## build_swarm: deploy swarm
 build_swarm:
+	@echo "deploy swarm myapp..."
 	docker stack deploy -c swarm.yml myapp
+	@echo "Done!"
 
+## down_swarm: remove swarm
 down_swarm:
+	@echo "remove swarm myapp..."
 	docker stack rm myapp
+	@echo "Done!"
 
+## leave_swarm: delete swarm
 leave_swarm:
+	@echo "full delete (leave) swarm..."
 	docker swarm leave --force
+	@echo "Done!"
 

@@ -946,7 +946,7 @@ func (app *Config) getPercentInstructions(w http.ResponseWriter, i IDPayload) {
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
-// TODO sendMail
+// sendMail send some text to users email
 func (app *Config) sendMail(w http.ResponseWriter, msg MailPayload) {
 	jsonData, _ := json.MarshalIndent(msg, "", "\t")
 
