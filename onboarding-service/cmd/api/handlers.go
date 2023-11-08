@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"onboarding/data"
 )
@@ -154,11 +153,6 @@ func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
 		app.errorJSON(w, errors.New("error with unmarshal"), http.StatusBadGateway)
 	}
 
-	type responsePayload struct {
-		knowledge data.Knowledge
-		solved    bool
-	}
-
 	var response []*data.SolvedKnowledges
 
 	for _, knowledge := range knowns {
@@ -177,8 +171,6 @@ func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
 
 		response = append(response, &resp)
 	}
-
-	log.Println("knowledges", response)
 
 	payload := JsonResponse{
 		Error:   false,

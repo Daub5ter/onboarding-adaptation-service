@@ -46,11 +46,6 @@ type SolvedKnowledges struct {
 	Solved    bool      `json:"solved"`
 }
 
-type KnowledgeJoinUsersKnowledges struct {
-	Knowledge
-	UsersKnowledges
-}
-
 func (k *Knowledge) GetAll() ([]*Knowledge, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -194,7 +189,7 @@ func (uk *UsersKnowledges) GetAll(id int) ([]*int, error) {
 	}
 	defer rows.Close()
 
-	var usersKnowledgeID []*int
+	var usersKnowledgeIDs []*int
 
 	for rows.Next() {
 		var knowledgeID int
@@ -206,8 +201,8 @@ func (uk *UsersKnowledges) GetAll(id int) ([]*int, error) {
 			return nil, err
 		}
 
-		usersKnowledgeID = append(usersKnowledgeID, &knowledgeID)
+		usersKnowledgeIDs = append(usersKnowledgeIDs, &knowledgeID)
 	}
 
-	return usersKnowledgeID, nil
+	return usersKnowledgeIDs, nil
 }
