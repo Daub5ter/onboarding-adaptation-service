@@ -86,6 +86,10 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 		app.addKnowledge(w, requestPayload.Known)
 	case "add_users_knowledge":
 		app.addUsersKnowledge(w, requestPayload.UsersKnown)
+	case "get_all_instructions":
+		app.getAllInstructions(w)
+	case "get_users_instructions":
+		app.getUsersInstructions(w, requestPayload.ID)
 	case "mail":
 		app.sendMail(w, requestPayload.Mail)
 
@@ -562,7 +566,7 @@ func (app *Config) addUsersKnowledge(w http.ResponseWriter, uk UsersKnowledgesPa
 // TODO
 func (app *Config) getAllInstructions(w http.ResponseWriter) {
 	// call the service
-	request, err := http.NewRequest("GET", "http://authentication-service/get_all", nil)
+	request, err := http.NewRequest("GET", "http://adaptation-service/get_all", nil)
 	if err != nil {
 		app.errorJSON(w, err)
 		return
@@ -602,19 +606,19 @@ func (app *Config) getAllInstructions(w http.ResponseWriter) {
 
 	var payload jsonResponse
 	payload.Error = false
-	payload.Message = "Received users"
+	payload.Message = "Received all instructions"
 	payload.Data = jsonFromService.Data
 
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
 // TODO
-func (app *Config) getAllUsersInstructions(w http.ResponseWriter, i IDPayload) {
+func (app *Config) getUsersInstructions(w http.ResponseWriter, i IDPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(i, "", "\t")
 
 	// call the service
-	request, err := http.NewRequest("POST", "http://onboarding-service/get_all", bytes.NewBuffer(jsonData))
+	request, err := http.NewRequest("POST", "http://adaptation-service/get_users_ins", bytes.NewBuffer(jsonData))
 	if err != nil {
 		app.errorJSON(w, err)
 		return
@@ -654,7 +658,7 @@ func (app *Config) getAllUsersInstructions(w http.ResponseWriter, i IDPayload) {
 
 	var payload jsonResponse
 	payload.Error = false
-	payload.Message = "Received knowledge"
+	payload.Message = "Received users instructions"
 	payload.Data = jsonFromService.Data
 
 	app.writeJSON(w, http.StatusOK, payload)

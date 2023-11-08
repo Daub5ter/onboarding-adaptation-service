@@ -50,6 +50,19 @@ services:
     environment:
       DSN: "host=postgres port=5432 user=postgres password=password dbname=postgres sslmode=disable timezone=UTC connect_timeout=5"
 
+  adaptation-service:
+    build:
+      context: ./../adaptation-service
+      dockerfile: ./../adaptation-service/adaptation-service.dockerfile
+    restart: always
+    ports:
+      - "8083:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      DSN: "host=postgres port=5432 user=postgres password=password dbname=postgres sslmode=disable timezone=UTC connect_timeout=5"
+
   postgres:
     image: 'postgres:16.0'
     ports:

@@ -9,30 +9,50 @@ import (
 	"net/http"
 )
 
-// GetAll return user`s solved and unsolved instructions
+// GetAll return all instructions
 func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
-	var instrs []data.Instructions
-	var ids []int
-
-	instructions, err := app.Models.Instructions.GetAll()
+	users, err := app.Models.Instructions.GetAll()
 	if err != nil {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		return
 	}
+
+	payload := JsonResponse{
+		Error:   false,
+		Message: fmt.Sprintf("Received %v instructions", len(users)),
+		Data:    users,
+	}
+
+	app.writeJSON(w, http.StatusOK, payload)
+}
+
+// GetUsersInstructions return user`s solved and unsolved instructions
+func (app *Config) GetUsersInstructions(w http.ResponseWriter, r *http.Request) {
+	var instrs []data.Instructions
+	var ids []int
 
 	var requestPayload struct {
 		ID int `json:"id"`
 	}
 
-	err = app.readJSON(w, r, &requestPayload)
+	err := app.readJSON(w, r, &requestPayload)
 	if err != nil {
 		app.errorJSON(w, err, http.StatusBadRequest)
+		return
 	}
 
-	solvedInstructions, err := app.Models.UsersInstructions.GetAll(requestPayload.ID)
+	solvedInstructions, err := app.Models.UsersInstructions.GetAllSolved(requestPayload.ID)
 	if err != nil {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		return
 	}
-	//TODO
+
+	instructions, err := app.Models.UsersInstructions.GetAll(requestPayload.ID)
+	if err != nil {
+		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		return
+	}
+
 	instrsPayload, _ := json.Marshal(instructions)
 	IDsPayload, _ := json.Marshal(solvedInstructions)
 
@@ -42,10 +62,12 @@ func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(instrsPayload, &instrs)
 	if err != nil {
 		app.errorJSON(w, errors.New("error with unmarshal"), http.StatusBadGateway)
+		return
 	}
 	err = json.Unmarshal(IDsPayload, &ids)
 	if err != nil {
 		app.errorJSON(w, errors.New("error with unmarshal"), http.StatusBadGateway)
+		return
 	}
 
 	var response []*data.SolvedInstructions

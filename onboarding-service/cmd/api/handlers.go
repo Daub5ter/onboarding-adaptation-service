@@ -119,23 +119,26 @@ func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
 	var knowns []data.Knowledge
 	var ids []int
 
-	knowledges, err := app.Models.Knowledge.GetAll()
-	if err != nil {
-		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
-	}
-
 	var requestPayload struct {
 		ID int `json:"id"`
 	}
 
-	err = app.readJSON(w, r, &requestPayload)
+	err := app.readJSON(w, r, &requestPayload)
 	if err != nil {
 		app.errorJSON(w, err, http.StatusBadRequest)
+		return
 	}
 
 	solvedKnowleages, err := app.Models.UsersKnowledges.GetAll(requestPayload.ID)
 	if err != nil {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		return
+	}
+
+	knowledges, err := app.Models.Knowledge.GetAll()
+	if err != nil {
+		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		return
 	}
 
 	knownPayload, _ := json.Marshal(knowledges)
@@ -147,10 +150,12 @@ func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(knownPayload, &knowns)
 	if err != nil {
 		app.errorJSON(w, errors.New("error with unmarshal"), http.StatusBadGateway)
+		return
 	}
 	err = json.Unmarshal(IDsPayload, &ids)
 	if err != nil {
 		app.errorJSON(w, errors.New("error with unmarshal"), http.StatusBadGateway)
+		return
 	}
 
 	var response []*data.SolvedKnowledges
@@ -186,6 +191,7 @@ func (app *Config) GetAllKnown(w http.ResponseWriter, r *http.Request) {
 	knowledges, err := app.Models.Knowledge.GetAll()
 	if err != nil {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		return
 	}
 
 	payload := JsonResponse{
@@ -206,11 +212,13 @@ func (app *Config) GetAllUsersKnown(w http.ResponseWriter, r *http.Request) {
 	err := app.readJSON(w, r, &requestPayload)
 	if err != nil {
 		app.errorJSON(w, err, http.StatusBadRequest)
+		return
 	}
 
 	usersKnowledge, err := app.Models.UsersKnowledges.GetAll(requestPayload.ID)
 	if err != nil {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		return
 	}
 
 	payload := JsonResponse{

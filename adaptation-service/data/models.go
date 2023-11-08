@@ -80,13 +80,14 @@ func (i *Instructions) GetAll() ([]*Instructions, error) {
 	return instructions, nil
 }
 
-func (ui *UsersInstructions) GetAll(id int) ([]*int, error) {
+func (ui *UsersInstructions) GetAll(id int) ([]*Instructions, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
 	query := `select instructions.id, instructions.title, instructions.description, instructions.created_at, instructions.updated_at
-		from instructions instructions, users_instructions users_instructions
-		where users_instructions.instruction_id = instructions.id;`
+		from instructions, users_instructions
+		where users_instructions.instruction_id = instructions.id
+		and users_instructions.user_id = $1;`
 
 	rows, err := db.QueryContext(ctx, query, id)
 	if err != nil {
@@ -94,22 +95,26 @@ func (ui *UsersInstructions) GetAll(id int) ([]*int, error) {
 	}
 	defer rows.Close()
 
-	var usersInstructionIDs []*int
+	var instructions []*Instructions
 
 	for rows.Next() {
-		var instructionID int
+		var instruction Instructions
 		err = rows.Scan(
-			&instructionID,
+			&instruction.ID,
+			&instruction.Title,
+			&instruction.Description,
+			&instruction.CreatedAt,
+			&instruction.UpdatedAt,
 		)
 		if err != nil {
 			log.Println("Error scanning", err)
 			return nil, err
 		}
 
-		usersInstructionIDs = append(usersInstructionIDs, &instructionID)
+		instructions = append(instructions, &instruction)
 	}
 
-	return usersInstructionIDs, nil
+	return instructions, nil
 }
 
 func (ui *UsersInstructions) GetAllSolved(id int) ([]*int, error) {
