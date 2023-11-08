@@ -92,8 +92,8 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 		app.getByIDUser(w, requestPayload.ID)
 	case "get_all_knowledge":
 		app.getAllKnowledge(w, requestPayload.ID)
-	case "get_percent":
-		app.getPercent(w, requestPayload.ID)
+	case "get_percent_knowledge":
+		app.getPercentKnowledge(w, requestPayload.ID)
 	case "add_knowledge":
 		app.addKnowledge(w, requestPayload.Known)
 	case "add_users_knowledge":
@@ -110,6 +110,8 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 		app.addUsersInstruction(w, requestPayload.UsersInstructions)
 	case "solve_instruction":
 		app.solveInstruction(w, requestPayload.UsersInstructions)
+	case "get_percent_instructions":
+		app.getPercentInstructions(w, requestPayload.ID)
 	case "mail":
 		app.sendMail(w, requestPayload.Mail)
 
@@ -427,8 +429,8 @@ func (app *Config) getAllKnowledge(w http.ResponseWriter, i IDPayload) {
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
-// getPercent return percent of solved knowledge
-func (app *Config) getPercent(w http.ResponseWriter, i IDPayload) {
+// getPercentKnowledge return percent of solved knowledge
+func (app *Config) getPercentKnowledge(w http.ResponseWriter, i IDPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(i, "", "\t")
 
@@ -684,6 +686,7 @@ func (app *Config) getUsersInstructions(w http.ResponseWriter, i IDPayload) {
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
+// addInstruction add the new instruction
 func (app *Config) addInstruction(w http.ResponseWriter, i InstructionPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(i, "", "\t")
@@ -735,6 +738,7 @@ func (app *Config) addInstruction(w http.ResponseWriter, i InstructionPayload) {
 	app.writeJSON(w, http.StatusCreated, payload)
 }
 
+// addUsersInstruction add the new users instruction
 func (app *Config) addUsersInstruction(w http.ResponseWriter, ui UsersInstructionsPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(ui, "", "\t")
@@ -786,6 +790,7 @@ func (app *Config) addUsersInstruction(w http.ResponseWriter, ui UsersInstructio
 	app.writeJSON(w, http.StatusCreated, payload)
 }
 
+// getInstruction return one instruction by ID
 func (app *Config) getInstruction(w http.ResponseWriter, i IDPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(i, "", "\t")
@@ -837,6 +842,7 @@ func (app *Config) getInstruction(w http.ResponseWriter, i IDPayload) {
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
+// solveInstruction add solved point into db
 func (app *Config) solveInstruction(w http.ResponseWriter, ui UsersInstructionsPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(ui, "", "\t")
@@ -883,6 +889,58 @@ func (app *Config) solveInstruction(w http.ResponseWriter, ui UsersInstructionsP
 	var payload jsonResponse
 	payload.Error = false
 	payload.Message = "Solved"
+	payload.Data = jsonFromService.Data
+
+	app.writeJSON(w, http.StatusOK, payload)
+}
+
+// getPercentInstructions return percent of solved knowledge
+func (app *Config) getPercentInstructions(w http.ResponseWriter, i IDPayload) {
+	// create some json we'll send to the auth microservice
+	jsonData, _ := json.MarshalIndent(i, "", "\t")
+
+	// call the service
+	request, err := http.NewRequest("POST", "http://adaptation-service/get_percent", bytes.NewBuffer(jsonData))
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	defer response.Body.Close()
+
+	// make sure we get back the correct status code
+	if response.StatusCode == http.StatusUnauthorized {
+		app.errorJSON(w, errors.New("invalid credentials"))
+		return
+	} else if response.StatusCode != http.StatusOK {
+		app.errorJSON(w, errors.New("error calling auth service"))
+		return
+	}
+
+	// create a variable we'll read response.Body into
+	var jsonFromService jsonResponse
+
+	// decode the json from the auth service
+	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	if jsonFromService.Error {
+		app.errorJSON(w, err, http.StatusUnauthorized)
+		return
+	}
+
+	var payload jsonResponse
+	payload.Error = false
+	payload.Message = "Received percent"
 	payload.Data = jsonFromService.Data
 
 	app.writeJSON(w, http.StatusOK, payload)

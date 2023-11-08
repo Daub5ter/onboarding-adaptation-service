@@ -206,3 +206,29 @@ func (app *Config) SolveInstruction(w http.ResponseWriter, r *http.Request) {
 
 	app.writeJSON(w, http.StatusOK, payload)
 }
+
+func (app *Config) GetPercent(w http.ResponseWriter, r *http.Request) {
+	var requestPayload struct {
+		ID int `json:"id"`
+	}
+
+	err := app.readJSON(w, r, &requestPayload)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	percent, err := app.Models.UsersInstructions.GetPercent(requestPayload.ID)
+	if err != nil {
+		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		return
+	}
+
+	payload := JsonResponse{
+		Error:   false,
+		Message: fmt.Sprintf("received percent of instructions with user`s id: %v", requestPayload.ID),
+		Data:    percent,
+	}
+
+	app.writeJSON(w, http.StatusOK, payload)
+}

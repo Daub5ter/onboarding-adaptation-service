@@ -24,11 +24,12 @@ func (app *Config) routes() http.Handler {
 	mux.Use(middleware.Heartbeat("/ping"))
 
 	mux.Get("/get_all", app.GetAll)
+	mux.Put("/solve_instruction", app.SolveInstruction)
 	mux.Post("/get_instruction", app.GetInstructionByID)
 	mux.Post("/get_users_instructions", app.GetUsersInstructions)
 	mux.Post("/add_instruction", app.AddInstruction)
 	mux.Post("/add_users_instruction", app.AddUsersInstruction)
-	mux.Put("/solve_instruction", app.SolveInstruction)
+	mux.Post("/get_percent", app.GetPercent)
 
 	return mux
 }

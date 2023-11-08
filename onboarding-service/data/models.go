@@ -157,7 +157,6 @@ func (uk *UsersKnowledges) GetPercent(id int) (int, error) {
 		&countUK,
 	)
 	if err != nil {
-		log.Println("wtf", err)
 		return 0, err
 	}
 

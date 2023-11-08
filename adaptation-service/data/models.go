@@ -230,3 +230,34 @@ func (ui *UsersInstructions) GetAllSolved(id int) ([]*int, error) {
 
 	return usersInstructionIDs, nil
 }
+
+func (ui *UsersInstructions) GetPercent(id int) (int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	//TODO
+	var countUI int
+	query := `select count(*) from users_instructions where user_id = $1 and solved_at is not null`
+	row := db.QueryRowContext(ctx, query, id)
+
+	err := row.Scan(
+		&countUI,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	var countI int
+	query = `select count(*) from users_instructions where user_id = $1`
+	row = db.QueryRowContext(ctx, query, id)
+
+	err = row.Scan(
+		&countI,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	percent := countUI * 100 / countI
+
+	return percent, nil
+}
