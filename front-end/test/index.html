@@ -81,7 +81,7 @@ example of js script + html code to check payload from server:
         // create request
         // action without params (all actions in broker-service/cmd/api/handlers)
         const payload = {
-            action: "get_all",
+            action: "get_all_user",
         }
 
         // body of request
@@ -100,8 +100,9 @@ example of js script + html code to check payload from server:
             .then((response) => response.json())
             .then((data) => {
                 // pull response in our payload interfaces
-                sent.innerHTML = "get all users"
+                sent.innerHTML = "get all users";
                 received.innerHTML = JSON.stringify(data, undefined, 4);
+                alert(data.data[0].first_name)
                 if (data.error) {
                     output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
                 } else {
@@ -118,10 +119,10 @@ example of js script + html code to check payload from server:
         // create request
         // action with params auth (all actions in broker-service/cmd/api/handlers)
         const payload = {
-            action: "auth",
+            action: "auth_user",
             auth: {
-                email: "admin@example.com",
-                password: "verysecret",
+                email: "sysadmin@test.com",
+                password: "sysadmin",
             }
         }
 
@@ -143,6 +144,7 @@ example of js script + html code to check payload from server:
                 // pull response in our payload interfaces
                 sent.innerHTML = JSON.stringify(payload, undefined, 4);
                 received.innerHTML = JSON.stringify(data, undefined, 4);
+                alert(data.data.password)
                 if (data.error) {
                     output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
                 } else {
