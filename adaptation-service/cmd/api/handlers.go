@@ -11,7 +11,7 @@ import (
 
 // GetAll return all instructions
 func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
-	users, err := app.Models.Instructions.GetAll()
+	instructions, err := app.Models.Instructions.GetAll()
 	if err != nil {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
 		return
@@ -19,8 +19,8 @@ func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
 
 	payload := JsonResponse{
 		Error:   false,
-		Message: fmt.Sprintf("Received %v instructions", len(users)),
-		Data:    users,
+		Message: fmt.Sprintf("Received %v instructions", len(instructions)),
+		Data:    instructions,
 	}
 
 	app.writeJSON(w, http.StatusOK, payload)
@@ -83,7 +83,7 @@ func (app *Config) GetUsersInstructions(w http.ResponseWriter, r *http.Request) 
 		}
 
 		var resp data.SolvedInstructions
-		resp.Instruction = instruction
+		resp.Instructions = instruction
 		resp.Solved = solved
 
 		response = append(response, &resp)
@@ -91,8 +91,117 @@ func (app *Config) GetUsersInstructions(w http.ResponseWriter, r *http.Request) 
 
 	payload := JsonResponse{
 		Error:   false,
-		Message: fmt.Sprintf("received all knowledge"),
+		Message: fmt.Sprintf("received all instructions"),
 		Data:    response,
+	}
+
+	app.writeJSON(w, http.StatusOK, payload)
+}
+
+// GetInstructionByID return instructions from db
+func (app *Config) GetInstructionByID(w http.ResponseWriter, r *http.Request) {
+	var requestPayload struct {
+		ID int `json:"id"`
+	}
+
+	err := app.readJSON(w, r, &requestPayload)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	instruction, err := app.Models.Instructions.GetOne(requestPayload.ID)
+	if err != nil {
+		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		return
+	}
+
+	payload := JsonResponse{
+		Error:   false,
+		Message: fmt.Sprintf("received instruction"),
+		Data:    instruction,
+	}
+
+	app.writeJSON(w, http.StatusOK, payload)
+}
+
+// AddInstruction insert instruction into db
+func (app *Config) AddInstruction(w http.ResponseWriter, r *http.Request) {
+	var requestPayload data.Instructions
+
+	err := app.readJSON(w, r, &requestPayload)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	id, err := app.Models.Instructions.Insert(requestPayload)
+	if err != nil {
+		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		return
+	}
+
+	payload := JsonResponse{
+		Error:   false,
+		Message: fmt.Sprintf("Created instruction with id %s", id),
+		Data:    id,
+	}
+
+	app.writeJSON(w, http.StatusCreated, payload)
+}
+
+// AddUsersInstruction insert solved instruction into db
+func (app *Config) AddUsersInstruction(w http.ResponseWriter, r *http.Request) {
+	var requestPayload data.UsersInstructions
+
+	err := app.readJSON(w, r, &requestPayload)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	userID, err := app.Models.UsersInstructions.Insert(requestPayload)
+	if err != nil {
+		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		return
+	}
+
+	payload := JsonResponse{
+		Error: false,
+		Message: fmt.Sprintf("Created users instruction with user id %v, instruction id %v",
+			requestPayload.UserID, requestPayload.InstructionID),
+		Data: userID,
+	}
+
+	app.writeJSON(w, http.StatusCreated, payload)
+}
+
+// SolveInstruction solve users instruction into db
+func (app *Config) SolveInstruction(w http.ResponseWriter, r *http.Request) {
+	var requestPayload data.UsersInstructions
+
+	err := app.readJSON(w, r, &requestPayload)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	instruction, err := app.Models.Instructions.GetOne(requestPayload.InstructionID)
+	if err != nil {
+		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
+		return
+	}
+
+	err = instruction.Update(requestPayload.UserID)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	payload := JsonResponse{
+		Error:   false,
+		Message: fmt.Sprintf("Solved instruction with id %s", instruction.ID),
+		Data:    requestPayload.UserID,
 	}
 
 	app.writeJSON(w, http.StatusOK, payload)

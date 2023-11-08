@@ -42,8 +42,8 @@ type UsersKnowledges struct {
 }
 
 type SolvedKnowledges struct {
-	Knowledge Knowledge `json:"knowledge"`
-	Solved    bool      `json:"solved"`
+	Knowledge
+	Solved bool `json:"solved"`
 }
 
 func (k *Knowledge) GetAll() ([]*Knowledge, error) {
