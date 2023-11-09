@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import {debugLog} from "express-fileupload/lib/utilities.js";
 
-const hostUrl = "/upload";
+const hostUrl = "http:\/\/localhost:3000/upload";
 
 export const UploadFile = () => {
     const filePicker = useRef(null);
@@ -21,6 +21,8 @@ export const UploadFile = () => {
 
         const formData = new FormData();
         formData.append('file', selectedFile);
+
+        console.log(formData)
 
         const res = await fetch(hostUrl, {
             method: 'POST',
@@ -43,7 +45,7 @@ export const UploadFile = () => {
                 type="file"
                 ref = {filePicker}
                 onChange={handleChange}
-                accept="image/*,.png,.jpg,.jpeg,.gif,.web"
+                accept="image/*,.png,.jpg,.jpeg,.gif,.web,"
             />
 
             <button onClick={handleUpload}>Upload now</button>
