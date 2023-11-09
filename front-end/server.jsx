@@ -16,9 +16,7 @@ app.post('/upload', (req, res) => {
 
     if (!file) return res.json({ error: 'Incorrect input name' });
 
-    const newFileName = encodeURI(Data.now() + '-' + file.name);
-
-    file.mv(`${__dirname}/public/uploads/${newFileName}`, err => {
+    file.mv(`${__dirname}/public/uploads/${file.name}`, err => {
         if (err) {
             console.error(err);
             return res.status(500).send(err);
@@ -27,9 +25,9 @@ app.post('/upload', (req, res) => {
 
         res.json({
             fileName: file.name,
-            filePath: `/uploads/${newFileName}`,
+            filePath: `/public/uploads/${file.name}`,
         });
     });
 });
 
-app.listen(80, () => console.log('Server Started...'));
+app.listen(1234, () => console.log('Server Started...'));
