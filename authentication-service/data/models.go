@@ -37,10 +37,10 @@ type User struct {
 	Email      string    `json:"email"`
 	FirstName  string    `json:"first_name,omitempty"`
 	LastName   string    `json:"last_name,omitempty"`
-	Password   string    `json:"-"`
+	Password   string    `json:"password"`
 	Profession string    `json:"profession"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	CreatedAt  time.Time `json:"created_at,omitempty"`
+	UpdatedAt  time.Time `json:"updated_at,omitempty"`
 }
 
 // GetAll returns a slice of all users, sorted by last name
@@ -49,7 +49,7 @@ func (u *User) GetAll() ([]*User, error) {
 	defer cancel()
 
 	query := `select id, email, first_name, last_name, password, profession, created_at, updated_at
-	from users order by last_name`
+	from users order by first_name`
 
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {

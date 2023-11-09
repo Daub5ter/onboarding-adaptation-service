@@ -1,0 +1,107 @@
+{
+    "action": "reg",
+    "reg": {
+        "email": "employer@test.com",
+        "first_name": "employer",
+        "last_name": "test",
+        "password": "employer"
+    }
+}
+
+{
+    "action": "get_all_user"
+}
+
+{
+    "action": "get_user_by_email",
+    "email": {
+        "email": "sysadmin@test.com"
+    }
+}
+
+{
+    "action": "auth_user",
+    "auth": {
+        "email": "sysadmin@test.com",
+        "password": "sysadmin"
+    }
+}
+
+{
+    "action": "get_all_knowledge",
+    "id": {
+        "id": 1
+    }
+}
+
+{
+    "action": "get_percent_knowledge",
+    "id": {
+        "id": 1
+    }
+}
+
+{
+    "action": "add_knowledge",
+    "known": {
+        "title": "22te4",
+        "description": "2tes3t"
+    }
+}
+
+{
+    "action": "add_users_knowledge",
+    "users_known": {
+        "user_id": 2,
+        "knowledge_id": 2
+    }
+}
+
+{
+    "action": "get_all_instructions"
+}
+
+{
+    "action": "add_instruction",
+    "instruction": {
+        "title": "111testtit1le",
+        "description": "222testdescr2iption"
+    }
+}
+
+{
+    "action": "add_users_instruction",
+    "users_instructions": {
+        "user_id": 1,
+        "instruction_id": 3
+    }
+}
+
+{
+    "action": "solve_instruction",
+    "users_instructions": {
+        "user_id": 3,
+        "instruction_id": 2
+    }
+}
+
+{
+    "action": "get_users_instructions",
+    "id": {
+        "id": 2
+    }
+}
+
+{
+    "action": "get_instruction",
+    "id": {
+        "id": 2
+    }
+}
+
+{
+    "action": "get_percent_instructions",
+    "id": {
+        "id": 3
+    }
+}

@@ -37,6 +37,32 @@ services:
     environment:
       DSN: "host=postgres port=5432 user=postgres password=password dbname=postgres sslmode=disable timezone=UTC connect_timeout=5"
 
+  onboarding-service:
+    build:
+      context: ./../onboarding-service
+      dockerfile: ./../onboarding-service/onboarding-service.dockerfile
+    restart: always
+    ports:
+      - "8082:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      DSN: "host=postgres port=5432 user=postgres password=password dbname=postgres sslmode=disable timezone=UTC connect_timeout=5"
+
+  adaptation-service:
+    build:
+      context: ./../adaptation-service
+      dockerfile: ./../adaptation-service/adaptation-service.dockerfile
+    restart: always
+    ports:
+      - "8083:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      DSN: "host=postgres port=5432 user=postgres password=password dbname=postgres sslmode=disable timezone=UTC connect_timeout=5"
+
   postgres:
     image: 'postgres:16.0'
     ports:
@@ -51,6 +77,24 @@ services:
       POSTGRES_DB: postgres
     volumes:
       - ./db-data/postgres/:/var/lib/postgresql/data/
+
+  mailer-service:
+    build:
+      context: ./../mail-service
+      dockerfile: ./../mail-service/mail-service.dockerfile
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      MAIL_DOMAIN: localhost
+      MAIL_HOST: mailhog
+      MAIL_PORT: 1025
+      MAIL_ENCRYPTION: none
+      MAIL_USERNAME: ""
+      MAIL_PASSWORD: ""
+      FROM NAME: "CallChanTeam"
+      FROM_ADDRESS: "call.chan.team@test.com"
 
   mailhog:
     image: 'mailhog/mailhog:latest'

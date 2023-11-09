@@ -8,15 +8,16 @@ import (
 )
 
 type RequestPayload struct {
-	Action     string            `json:"action"`
-	Auth       AuthPayload       `json:"auth,omitempty"`
-	Reg        RegPayload        `json:"reg,omitempty"`
-	Update     UpdatePayload     `json:"update,omitempty"`
-	ChPassword ChPasswordPayload `json:"change_password,omitempty"`
-	Email      EmailPayload      `json:"get_by_email,omitempty"`
-	ID         IDPayload         `json:"get_by_id,omitempty"`
-	Log        LogPayload        `json:"log,omitempty"`
-	Mail       MailPayload       `json:"mail,omitempty"`
+	Action            string                   `json:"action"`
+	Auth              AuthUserPayload          `json:"auth,omitempty"`
+	Reg               RegUserPayload           `json:"reg,omitempty"`
+	Email             EmailPayload             `json:"email,omitempty"`
+	ID                IDPayload                `json:"id,omitempty"`
+	Known             KnowledgePayload         `json:"known,omitempty"`
+	UsersKnown        UsersKnowledgesPayload   `json:"users_known,omitempty"`
+	Instruction       InstructionPayload       `json:"instruction,omitempty"`
+	UsersInstructions UsersInstructionsPayload `json:"users_instructions,omitempty"`
+	Mail              MailPayload              `json:"mail,omitempty"`
 }
 
 type MailPayload struct {
@@ -26,31 +27,17 @@ type MailPayload struct {
 	Message string `json:"message"`
 }
 
-type AuthPayload struct {
+type AuthUserPayload struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-type RegPayload struct {
+type RegUserPayload struct {
 	Email      string `json:"email"`
 	FirstName  string `json:"first_name,omitempty"`
 	LastName   string `json:"last_name,omitempty"`
 	Password   string `json:"password"`
 	Profession string `json:"profession"`
-}
-
-type UpdatePayload struct {
-	Email       string `json:"email"`
-	EmailChange string `json:"email_change"`
-	FirstName   string `json:"first_name,omitempty,omitempty"`
-	LastName    string `json:"last_name,omitempty,omitempty"`
-	Profession  string `json:"profession"`
-}
-
-type ChPasswordPayload struct {
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	NewPassword string `json:"new_password"`
 }
 
 type EmailPayload struct {
@@ -61,9 +48,24 @@ type IDPayload struct {
 	ID int `json:"id"`
 }
 
-type LogPayload struct {
-	Name string `json:"name"`
-	Data string `json:"data"`
+type KnowledgePayload struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+type InstructionPayload struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+type UsersKnowledgesPayload struct {
+	UserID      int `json:"user_id"`
+	KnowledgeID int `json:"knowledge_id"`
+}
+
+type UsersInstructionsPayload struct {
+	UserID        int `json:"user_id"`
+	InstructionID int `json:"instruction_id"`
 }
 
 // HandleSubmission is the main point of entry into the broker. It accepts a JSON
@@ -78,26 +80,38 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch requestPayload.Action {
-	case "auth":
-		app.authenticate(w, requestPayload.Auth)
-	case "reg":
-		app.registrate(w, requestPayload.Reg)
-	case "update":
-		app.update(w, requestPayload.Update)
-	case "change_password":
-		app.changePassword(w, requestPayload.ChPassword)
-	case "get_all":
-		app.getAll(w)
-	case "get_by_email":
-		app.getByEmail(w, requestPayload.Email)
-	case "get_by_id":
-		app.getByID(w, requestPayload.ID)
-	case "get_by_email_delete":
-		app.getByEmailDelete(w, requestPayload.Email)
-	case "get_by_id_delete":
-		app.getByIDDelete(w, requestPayload.ID)
-	case "log":
-		app.logItem(w, requestPayload.Log)
+	case "auth_user":
+		app.authenticateUser(w, requestPayload.Auth)
+	case "reg_user":
+		app.registrateUser(w, requestPayload.Reg)
+	case "get_all_user":
+		app.getAllUser(w)
+	case "get_user_by_email":
+		app.getByEmailUser(w, requestPayload.Email)
+	case "get_user_by_id":
+		app.getByIDUser(w, requestPayload.ID)
+	case "get_all_knowledge":
+		app.getAllKnowledge(w, requestPayload.ID)
+	case "get_percent_knowledge":
+		app.getPercentKnowledge(w, requestPayload.ID)
+	case "add_knowledge":
+		app.addKnowledge(w, requestPayload.Known)
+	case "add_users_knowledge":
+		app.addUsersKnowledge(w, requestPayload.UsersKnown)
+	case "get_instruction":
+		app.getInstruction(w, requestPayload.ID)
+	case "get_all_instructions":
+		app.getAllInstructions(w)
+	case "get_users_instructions":
+		app.getUsersInstructions(w, requestPayload.ID)
+	case "add_instruction":
+		app.addInstruction(w, requestPayload.Instruction)
+	case "add_users_instruction":
+		app.addUsersInstruction(w, requestPayload.UsersInstructions)
+	case "solve_instruction":
+		app.solveInstruction(w, requestPayload.UsersInstructions)
+	case "get_percent_instructions":
+		app.getPercentInstructions(w, requestPayload.ID)
 	case "mail":
 		app.sendMail(w, requestPayload.Mail)
 
@@ -106,8 +120,8 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// calls the authentication microservice and sends back the appropriate response
-func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
+// authenticateUser auth user with email and password
+func (app *Config) authenticateUser(w http.ResponseWriter, a AuthUserPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(a, "", "\t")
 
@@ -158,109 +172,8 @@ func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
 	app.writeJSON(w, http.StatusAccepted, payload)
 }
 
-func (app *Config) update(w http.ResponseWriter, u UpdatePayload) {
-	// create some json we'll send to the auth microservice
-	jsonData, _ := json.MarshalIndent(u, "", "\t")
-
-	// call the service
-	request, err := http.NewRequest("PUT", "http://authentication-service/update", bytes.NewBuffer(jsonData))
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-
-	client := &http.Client{}
-	response, err := client.Do(request)
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-	defer response.Body.Close()
-
-	// make sure we get back the correct status code
-	if response.StatusCode == http.StatusUnauthorized {
-		app.errorJSON(w, errors.New("invalid credentials"))
-		return
-	} else if response.StatusCode != http.StatusOK {
-		app.errorJSON(w, errors.New("error calling auth service"))
-		return
-	}
-
-	// create a variable we'll read response.Body into
-	var jsonFromService jsonResponse
-
-	// decode the json from the auth service
-	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-
-	if jsonFromService.Error {
-		app.errorJSON(w, err, http.StatusUnauthorized)
-		return
-	}
-
-	var payload jsonResponse
-	payload.Error = false
-	payload.Message = "Updated"
-	payload.Data = jsonFromService.Data
-
-	app.writeJSON(w, http.StatusOK, payload)
-}
-
-func (app *Config) changePassword(w http.ResponseWriter, cp ChPasswordPayload) {
-	// create some json we'll send to the auth microservice
-	jsonData, _ := json.MarshalIndent(cp, "", "\t")
-
-	// call the service
-	request, err := http.NewRequest("PUT", "http://authentication-service/change_password", bytes.NewBuffer(jsonData))
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-
-	client := &http.Client{}
-	response, err := client.Do(request)
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-	defer response.Body.Close()
-
-	// make sure we get back the correct status code
-	if response.StatusCode == http.StatusUnauthorized {
-		app.errorJSON(w, errors.New("invalid credentials"))
-		return
-	} else if response.StatusCode != http.StatusOK {
-		app.errorJSON(w, errors.New("error calling auth service"))
-		return
-	}
-
-	// create a variable we'll read response.Body into
-	var jsonFromService jsonResponse
-
-	// decode the json from the auth service
-	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-
-	if jsonFromService.Error {
-		app.errorJSON(w, err, http.StatusUnauthorized)
-		return
-	}
-
-	var payload jsonResponse
-	payload.Error = false
-	payload.Message = "Password changed"
-	payload.Data = jsonFromService.Data
-
-	app.writeJSON(w, http.StatusOK, payload)
-}
-
-func (app *Config) getAll(w http.ResponseWriter) {
+// getAllUser return all users
+func (app *Config) getAllUser(w http.ResponseWriter) {
 	// call the service
 	request, err := http.NewRequest("GET", "http://authentication-service/get_all", nil)
 	if err != nil {
@@ -308,7 +221,8 @@ func (app *Config) getAll(w http.ResponseWriter) {
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
-func (app *Config) getByEmail(w http.ResponseWriter, e EmailPayload) {
+// getByEmailUser return user by email
+func (app *Config) getByEmailUser(w http.ResponseWriter, e EmailPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(e, "", "\t")
 
@@ -359,7 +273,8 @@ func (app *Config) getByEmail(w http.ResponseWriter, e EmailPayload) {
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
-func (app *Config) getByID(w http.ResponseWriter, i IDPayload) {
+// getByIDUser return user by ID
+func (app *Config) getByIDUser(w http.ResponseWriter, i IDPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(i, "", "\t")
 
@@ -410,109 +325,8 @@ func (app *Config) getByID(w http.ResponseWriter, i IDPayload) {
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
-func (app *Config) getByEmailDelete(w http.ResponseWriter, e EmailPayload) {
-	// create some json we'll send to the auth microservice
-	jsonData, _ := json.MarshalIndent(e, "", "\t")
-
-	// call the service
-	request, err := http.NewRequest("DELETE", "http://authentication-service/get_by_email_delete", bytes.NewBuffer(jsonData))
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-
-	client := &http.Client{}
-	response, err := client.Do(request)
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-	defer response.Body.Close()
-
-	// make sure we get back the correct status code
-	if response.StatusCode == http.StatusUnauthorized {
-		app.errorJSON(w, errors.New("invalid credentials"))
-		return
-	} else if response.StatusCode != http.StatusOK {
-		app.errorJSON(w, errors.New("error calling auth service"))
-		return
-	}
-
-	// create a variable we'll read response.Body into
-	var jsonFromService jsonResponse
-
-	// decode the json from the auth service
-	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-
-	if jsonFromService.Error {
-		app.errorJSON(w, err, http.StatusUnauthorized)
-		return
-	}
-
-	var payload jsonResponse
-	payload.Error = false
-	payload.Message = "Deleted user"
-	payload.Data = jsonFromService.Data
-
-	app.writeJSON(w, http.StatusOK, payload)
-}
-
-func (app *Config) getByIDDelete(w http.ResponseWriter, i IDPayload) {
-	// create some json we'll send to the auth microservice
-	jsonData, _ := json.MarshalIndent(i, "", "\t")
-
-	// call the service
-	request, err := http.NewRequest("DELETE", "http://authentication-service/get_by_id_delete", bytes.NewBuffer(jsonData))
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-
-	client := &http.Client{}
-	response, err := client.Do(request)
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-	defer response.Body.Close()
-
-	// make sure we get back the correct status code
-	if response.StatusCode == http.StatusUnauthorized {
-		app.errorJSON(w, errors.New("invalid credentials"))
-		return
-	} else if response.StatusCode != http.StatusOK {
-		app.errorJSON(w, errors.New("error calling auth service"))
-		return
-	}
-
-	// create a variable we'll read response.Body into
-	var jsonFromService jsonResponse
-
-	// decode the json from the auth service
-	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
-	if err != nil {
-		app.errorJSON(w, err)
-		return
-	}
-
-	if jsonFromService.Error {
-		app.errorJSON(w, err, http.StatusUnauthorized)
-		return
-	}
-
-	var payload jsonResponse
-	payload.Error = false
-	payload.Message = "Deleted user"
-	payload.Data = jsonFromService.Data
-
-	app.writeJSON(w, http.StatusOK, payload)
-}
-
-func (app *Config) registrate(w http.ResponseWriter, r RegPayload) {
+// registrateUser registrate user and return user`s ID
+func (app *Config) registrateUser(w http.ResponseWriter, r RegUserPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(r, "", "\t")
 
@@ -563,24 +377,19 @@ func (app *Config) registrate(w http.ResponseWriter, r RegPayload) {
 	app.writeJSON(w, http.StatusCreated, payload)
 }
 
-// cals the logger microservice and sends back the appropriate response
-func (app *Config) logItem(w http.ResponseWriter, entry LogPayload) {
+// getAllKnowledge return user`s solved and unsolved knowledge
+func (app *Config) getAllKnowledge(w http.ResponseWriter, i IDPayload) {
 	// create some json we'll send to the auth microservice
-	jsonData, _ := json.MarshalIndent(entry, "", "\t")
+	jsonData, _ := json.MarshalIndent(i, "", "\t")
 
 	// call the service
-	logServiceURL := "http://logger-service/log"
-
-	request, err := http.NewRequest("POST", logServiceURL, bytes.NewBuffer(jsonData))
+	request, err := http.NewRequest("POST", "http://onboarding-service/get_all", bytes.NewBuffer(jsonData))
 	if err != nil {
 		app.errorJSON(w, err)
 		return
 	}
 
-	request.Header.Set("Content-Type", "application/json")
-
 	client := &http.Client{}
-
 	response, err := client.Do(request)
 	if err != nil {
 		app.errorJSON(w, err)
@@ -589,19 +398,555 @@ func (app *Config) logItem(w http.ResponseWriter, entry LogPayload) {
 	defer response.Body.Close()
 
 	// make sure we get back the correct status code
-	if response.StatusCode != http.StatusAccepted {
+	if response.StatusCode == http.StatusUnauthorized {
+		app.errorJSON(w, errors.New("invalid credentials"))
+		return
+	} else if response.StatusCode != http.StatusOK {
+		app.errorJSON(w, errors.New("error calling auth service"))
+		return
+	}
+
+	// create a variable we'll read response.Body into
+	var jsonFromService jsonResponse
+
+	// decode the json from the auth service
+	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
+	if err != nil {
 		app.errorJSON(w, err)
 		return
 	}
 
-	// create json response
+	if jsonFromService.Error {
+		app.errorJSON(w, err, http.StatusUnauthorized)
+		return
+	}
+
 	var payload jsonResponse
 	payload.Error = false
-	payload.Message = "Logged"
+	payload.Message = "Received knowledge"
+	payload.Data = jsonFromService.Data
 
-	app.writeJSON(w, http.StatusAccepted, payload)
+	app.writeJSON(w, http.StatusOK, payload)
 }
 
+// getPercentKnowledge return percent of solved knowledge
+func (app *Config) getPercentKnowledge(w http.ResponseWriter, i IDPayload) {
+	// create some json we'll send to the auth microservice
+	jsonData, _ := json.MarshalIndent(i, "", "\t")
+
+	// call the service
+	request, err := http.NewRequest("POST", "http://onboarding-service/get_percent", bytes.NewBuffer(jsonData))
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	defer response.Body.Close()
+
+	// make sure we get back the correct status code
+	if response.StatusCode == http.StatusUnauthorized {
+		app.errorJSON(w, errors.New("invalid credentials"))
+		return
+	} else if response.StatusCode != http.StatusOK {
+		app.errorJSON(w, errors.New("error calling auth service"))
+		return
+	}
+
+	// create a variable we'll read response.Body into
+	var jsonFromService jsonResponse
+
+	// decode the json from the auth service
+	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	if jsonFromService.Error {
+		app.errorJSON(w, err, http.StatusUnauthorized)
+		return
+	}
+
+	var payload jsonResponse
+	payload.Error = false
+	payload.Message = "Received percent"
+	payload.Data = jsonFromService.Data
+
+	app.writeJSON(w, http.StatusOK, payload)
+}
+
+// addKnowledge add the new knowledge
+func (app *Config) addKnowledge(w http.ResponseWriter, k KnowledgePayload) {
+	// create some json we'll send to the auth microservice
+	jsonData, _ := json.MarshalIndent(k, "", "\t")
+
+	// call the service
+	request, err := http.NewRequest("POST", "http://onboarding-service/add_known", bytes.NewBuffer(jsonData))
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	defer response.Body.Close()
+
+	// make sure we get back the correct status code
+	if response.StatusCode == http.StatusUnauthorized {
+		app.errorJSON(w, errors.New("invalid credentials"))
+		return
+	} else if response.StatusCode != http.StatusCreated {
+		app.errorJSON(w, errors.New("error calling auth service"))
+		return
+	}
+
+	// create a variable we'll read response.Body into
+	var jsonFromService jsonResponse
+
+	// decode the json from the auth service
+	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	if jsonFromService.Error {
+		app.errorJSON(w, err, http.StatusUnauthorized)
+		return
+	}
+
+	var payload jsonResponse
+	payload.Error = false
+	payload.Message = "Knowledge added"
+	payload.Data = jsonFromService.Data
+
+	app.writeJSON(w, http.StatusCreated, payload)
+}
+
+// addUsersKnowledge add the new users solved knowledge
+func (app *Config) addUsersKnowledge(w http.ResponseWriter, uk UsersKnowledgesPayload) {
+	// create some json we'll send to the auth microservice
+	jsonData, _ := json.MarshalIndent(uk, "", "\t")
+
+	// call the service
+	request, err := http.NewRequest("POST", "http://onboarding-service/add_users_known", bytes.NewBuffer(jsonData))
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	defer response.Body.Close()
+
+	// make sure we get back the correct status code
+	if response.StatusCode == http.StatusUnauthorized {
+		app.errorJSON(w, errors.New("invalid credentials"))
+		return
+	} else if response.StatusCode != http.StatusCreated {
+		app.errorJSON(w, errors.New("error calling auth service"))
+		return
+	}
+
+	// create a variable we'll read response.Body into
+	var jsonFromService jsonResponse
+
+	// decode the json from the auth service
+	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	if jsonFromService.Error {
+		app.errorJSON(w, err, http.StatusUnauthorized)
+		return
+	}
+
+	var payload jsonResponse
+	payload.Error = false
+	payload.Message = "Users knowledge added"
+	payload.Data = jsonFromService.Data
+
+	app.writeJSON(w, http.StatusCreated, payload)
+}
+
+// getAllInstructions return all instructions
+func (app *Config) getAllInstructions(w http.ResponseWriter) {
+	// call the service
+	request, err := http.NewRequest("GET", "http://adaptation-service/get_all", nil)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	defer response.Body.Close()
+
+	// make sure we get back the correct status code
+	if response.StatusCode == http.StatusUnauthorized {
+		app.errorJSON(w, errors.New("invalid credentials"))
+		return
+	} else if response.StatusCode != http.StatusOK {
+		app.errorJSON(w, errors.New("error calling auth service"))
+		return
+	}
+
+	// create a variable we'll read response.Body into
+	var jsonFromService jsonResponse
+
+	// decode the json from the auth service
+	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	if jsonFromService.Error {
+		app.errorJSON(w, err, http.StatusUnauthorized)
+		return
+	}
+
+	var payload jsonResponse
+	payload.Error = false
+	payload.Message = "Received all instructions"
+	payload.Data = jsonFromService.Data
+
+	app.writeJSON(w, http.StatusOK, payload)
+}
+
+// getUsersInstructions return all users instructions
+func (app *Config) getUsersInstructions(w http.ResponseWriter, i IDPayload) {
+	// create some json we'll send to the auth microservice
+	jsonData, _ := json.MarshalIndent(i, "", "\t")
+
+	// call the service
+	request, err := http.NewRequest("POST", "http://adaptation-service/get_users_instructions", bytes.NewBuffer(jsonData))
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	defer response.Body.Close()
+
+	// make sure we get back the correct status code
+	if response.StatusCode == http.StatusUnauthorized {
+		app.errorJSON(w, errors.New("invalid credentials"))
+		return
+	} else if response.StatusCode != http.StatusOK {
+		app.errorJSON(w, errors.New("error calling auth service"))
+		return
+	}
+
+	// create a variable we'll read response.Body into
+	var jsonFromService jsonResponse
+
+	// decode the json from the auth service
+	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	if jsonFromService.Error {
+		app.errorJSON(w, err, http.StatusUnauthorized)
+		return
+	}
+
+	var payload jsonResponse
+	payload.Error = false
+	payload.Message = "Received users instructions"
+	payload.Data = jsonFromService.Data
+
+	app.writeJSON(w, http.StatusOK, payload)
+}
+
+// addInstruction add the new instruction
+func (app *Config) addInstruction(w http.ResponseWriter, i InstructionPayload) {
+	// create some json we'll send to the auth microservice
+	jsonData, _ := json.MarshalIndent(i, "", "\t")
+
+	// call the service
+	request, err := http.NewRequest("POST", "http://adaptation-service/add_instruction", bytes.NewBuffer(jsonData))
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	defer response.Body.Close()
+
+	// make sure we get back the correct status code
+	if response.StatusCode == http.StatusUnauthorized {
+		app.errorJSON(w, errors.New("invalid credentials"))
+		return
+	} else if response.StatusCode != http.StatusCreated {
+		app.errorJSON(w, errors.New("error calling auth service"))
+		return
+	}
+
+	// create a variable we'll read response.Body into
+	var jsonFromService jsonResponse
+
+	// decode the json from the auth service
+	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	if jsonFromService.Error {
+		app.errorJSON(w, err, http.StatusUnauthorized)
+		return
+	}
+
+	var payload jsonResponse
+	payload.Error = false
+	payload.Message = "Instruction added"
+	payload.Data = jsonFromService.Data
+
+	app.writeJSON(w, http.StatusCreated, payload)
+}
+
+// addUsersInstruction add the new users instruction
+func (app *Config) addUsersInstruction(w http.ResponseWriter, ui UsersInstructionsPayload) {
+	// create some json we'll send to the auth microservice
+	jsonData, _ := json.MarshalIndent(ui, "", "\t")
+
+	// call the service
+	request, err := http.NewRequest("POST", "http://adaptation-service/add_users_instruction", bytes.NewBuffer(jsonData))
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	defer response.Body.Close()
+
+	// make sure we get back the correct status code
+	if response.StatusCode == http.StatusUnauthorized {
+		app.errorJSON(w, errors.New("invalid credentials"))
+		return
+	} else if response.StatusCode != http.StatusCreated {
+		app.errorJSON(w, errors.New("error calling auth service"))
+		return
+	}
+
+	// create a variable we'll read response.Body into
+	var jsonFromService jsonResponse
+
+	// decode the json from the auth service
+	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	if jsonFromService.Error {
+		app.errorJSON(w, err, http.StatusUnauthorized)
+		return
+	}
+
+	var payload jsonResponse
+	payload.Error = false
+	payload.Message = "Users instruction added"
+	payload.Data = jsonFromService.Data
+
+	app.writeJSON(w, http.StatusCreated, payload)
+}
+
+// getInstruction return one instruction by ID
+func (app *Config) getInstruction(w http.ResponseWriter, i IDPayload) {
+	// create some json we'll send to the auth microservice
+	jsonData, _ := json.MarshalIndent(i, "", "\t")
+
+	// call the service
+	request, err := http.NewRequest("POST", "http://adaptation-service/get_instruction", bytes.NewBuffer(jsonData))
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	defer response.Body.Close()
+
+	// make sure we get back the correct status code
+	if response.StatusCode == http.StatusUnauthorized {
+		app.errorJSON(w, errors.New("invalid credentials"))
+		return
+	} else if response.StatusCode != http.StatusOK {
+		app.errorJSON(w, errors.New("error calling auth service"))
+		return
+	}
+
+	// create a variable we'll read response.Body into
+	var jsonFromService jsonResponse
+
+	// decode the json from the auth service
+	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	if jsonFromService.Error {
+		app.errorJSON(w, err, http.StatusUnauthorized)
+		return
+	}
+
+	var payload jsonResponse
+	payload.Error = false
+	payload.Message = "Received instruction"
+	payload.Data = jsonFromService.Data
+
+	app.writeJSON(w, http.StatusOK, payload)
+}
+
+// solveInstruction add solved point into db
+func (app *Config) solveInstruction(w http.ResponseWriter, ui UsersInstructionsPayload) {
+	// create some json we'll send to the auth microservice
+	jsonData, _ := json.MarshalIndent(ui, "", "\t")
+
+	// call the service
+	request, err := http.NewRequest("PUT", "http://adaptation-service/solve_instruction", bytes.NewBuffer(jsonData))
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	defer response.Body.Close()
+
+	// make sure we get back the correct status code
+	if response.StatusCode == http.StatusUnauthorized {
+		app.errorJSON(w, errors.New("invalid credentials"))
+		return
+	} else if response.StatusCode != http.StatusOK {
+		app.errorJSON(w, errors.New("error calling auth service"))
+		return
+	}
+
+	// create a variable we'll read response.Body into
+	var jsonFromService jsonResponse
+
+	// decode the json from the auth service
+	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	if jsonFromService.Error {
+		app.errorJSON(w, err, http.StatusUnauthorized)
+		return
+	}
+
+	var payload jsonResponse
+	payload.Error = false
+	payload.Message = "Solved"
+	payload.Data = jsonFromService.Data
+
+	app.writeJSON(w, http.StatusOK, payload)
+}
+
+// getPercentInstructions return percent of solved knowledge
+func (app *Config) getPercentInstructions(w http.ResponseWriter, i IDPayload) {
+	// create some json we'll send to the auth microservice
+	jsonData, _ := json.MarshalIndent(i, "", "\t")
+
+	// call the service
+	request, err := http.NewRequest("POST", "http://adaptation-service/get_percent", bytes.NewBuffer(jsonData))
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	defer response.Body.Close()
+
+	// make sure we get back the correct status code
+	if response.StatusCode == http.StatusUnauthorized {
+		app.errorJSON(w, errors.New("invalid credentials"))
+		return
+	} else if response.StatusCode != http.StatusOK {
+		app.errorJSON(w, errors.New("error calling auth service"))
+		return
+	}
+
+	// create a variable we'll read response.Body into
+	var jsonFromService jsonResponse
+
+	// decode the json from the auth service
+	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	if jsonFromService.Error {
+		app.errorJSON(w, err, http.StatusUnauthorized)
+		return
+	}
+
+	var payload jsonResponse
+	payload.Error = false
+	payload.Message = "Received percent"
+	payload.Data = jsonFromService.Data
+
+	app.writeJSON(w, http.StatusOK, payload)
+}
+
+// sendMail send some text to users email
 func (app *Config) sendMail(w http.ResponseWriter, msg MailPayload) {
 	jsonData, _ := json.MarshalIndent(msg, "", "\t")
 

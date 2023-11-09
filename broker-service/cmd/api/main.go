@@ -2,16 +2,13 @@ package main
 
 import (
 	"fmt"
-	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
 	"net/http"
 )
 
 const webPort = "80"
 
-type Config struct {
-	Rabbit *amqp.Connection
-}
+type Config struct{}
 
 func main() {
 	app := Config{}
