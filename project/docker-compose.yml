@@ -12,6 +12,8 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    volumes:
+      - ./db-data/images/:/app/images
 
   broker-service:
     build:
