@@ -1,15 +1,11 @@
-import { useState } from 'react'
-import './App.css'
-import IndoorMap from "./IndoorMap.jsx";
+import { UploadFile } from './UploadFile'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-      <>
-          <IndoorMap/>
-      </>
-  )
+      <div className="App">
+          <UploadFile />
+      </div>
+  );
 }
 
 export default App

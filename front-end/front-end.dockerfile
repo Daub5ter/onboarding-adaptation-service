@@ -1,4 +1,4 @@
-FROM node:16.20.2-alphine
+FROM node:16.20.2-alpine
 #FROM node:16.20.2 AS node
 #FROM php:7.4-fpm
 
