@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
-import {debugLog} from "express-fileupload/lib/utilities.js";
 
 const hostUrl = "http:\/\/localhost:3000/upload";
+let val = 1;
 
 export const UploadFile = () => {
     const filePicker = useRef(null);
@@ -9,9 +9,10 @@ export const UploadFile = () => {
     const [uploaded, setUploaded] = useState();
 
     const handleChange = (event) => {
-        console.log(event.target.files);
-        setSelectedFile(event.target.files[0]);
+        val = document.getElementById('countImages').value;
+        setSelectedFile(event.target.files)
     };
+
 
     const handleUpload = async () => {
         if (!selectedFile) {
@@ -20,9 +21,14 @@ export const UploadFile = () => {
         }
 
         const formData = new FormData();
-        formData.append('file', selectedFile);
 
-        console.log(formData)
+        console.log(selectedFile)
+
+        for (let i = 0; i < val; i++) {
+            formData.append('file', selectedFile[i]);
+        }
+
+        //console.log(formData);
 
         const res = await fetch(hostUrl, {
             method: 'POST',
@@ -39,11 +45,18 @@ export const UploadFile = () => {
 
     return (
         <>
-            <button onClick={handlePick}>Pick file</button>
+            <label>Count of images</label>
+            <input
+                id="countImages"
+                type="text"
+            />
+
+            <button onClick={handlePick}>Pick files</button>
             <input
                 className="hidden"
                 type="file"
                 ref = {filePicker}
+                multiple
                 onChange={handleChange}
                 accept="image/*,.png,.jpg,.jpeg,.gif,.web,"
             />
@@ -60,7 +73,7 @@ export const UploadFile = () => {
 
             {uploaded && (
                 <div>
-                    <h2>{uploaded.fileName}</h2>
+                    <h2>{uploaded.filePath}</h2>
                     <img alt='' src={uploaded.filePath} width="200"/>
                 </div>
             )}

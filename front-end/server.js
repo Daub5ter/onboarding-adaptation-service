@@ -1,7 +1,6 @@
 const cors = require('cors');
 const express = require('express');
 const fileUpload = require('express-fileupload');
-
 const port = 3000;
 
 const app = express();
@@ -13,33 +12,31 @@ app.use(fileUpload({
 app.use(cors())
 
 app.post('/upload', (req, res) => {
-
-
     if (!req.files) {
-        console.log("no file uploaded")
-        return res.status(400).json({ msg: 'No file uploaded' });
+        console.log("no files uploaded")
+        return res.status(400).json({msg: 'No file uploaded'});
     }
 
-    const file = req.files.file;
+    const filesDir = encodeURI(Date.now())
 
-    if (!file) {
-        console.log("Incorrect input name")
-        return res.json({ error: 'Incorrect input name' });
-    }
 
-    console.log("Creating mv")
-
-    file.mv(`${__dirname}/images/${file.name}`, err => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send(err);
+    for (let i = 0; ; i++) {
+        let file = req.files.file[i];
+        if (!file) {
+            break;
         }
-        console.log('file was uploaded');
 
-        res.json({
-            fileName: file.name,
-            filePath: `/images/${file.name}`,
+        file.mv(`${__dirname}/images/${filesDir}/${file.name}`, err => {
+            console.log(file.name)
+            if (err) {
+                console.error(err);
+                return res.status(500).send(err);
+            }
         });
+    }
+
+    res.json({
+        filePath: `/images/${filesDir}`,
     });
 });
 
