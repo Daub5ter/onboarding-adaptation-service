@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
 
 const hostUrl = "http:\/\/localhost:3000/upload";
-let val = 1;
 
 export const UploadFile = () => {
     const filePicker = useRef(null);
@@ -9,7 +8,6 @@ export const UploadFile = () => {
     const [uploaded, setUploaded] = useState();
 
     const handleChange = (event) => {
-        val = document.getElementById('countImages').value;
         setSelectedFile(event.target.files)
     };
 
@@ -22,13 +20,12 @@ export const UploadFile = () => {
 
         const formData = new FormData();
 
-        console.log(selectedFile)
-
-        for (let i = 0; i < val; i++) {
+        for (let i = 0; ; i++) {
+            if (selectedFile[i] === undefined) {
+                break
+            }
             formData.append('file', selectedFile[i]);
         }
-
-        //console.log(formData);
 
         const res = await fetch(hostUrl, {
             method: 'POST',
@@ -45,12 +42,6 @@ export const UploadFile = () => {
 
     return (
         <>
-            <label>Count of images</label>
-            <input
-                id="countImages"
-                type="text"
-            />
-
             <button onClick={handlePick}>Pick files</button>
             <input
                 className="hidden"
