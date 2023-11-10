@@ -1,9 +1,11 @@
-import { UploadFile } from './UploadFile'
+import { AddInstruction } from './AddInstruction'
+import { ShowAllInstructions } from './ShowAllInstructions'
 
 function App() {
     return (
         <div className="App">
-            <UploadFile />
+            <ShowAllInstructions />
+            <AddInstruction />
         </div>
     );
 }

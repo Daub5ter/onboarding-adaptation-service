@@ -27,7 +27,6 @@ app.post('/upload', (req, res) => {
         }
 
         file.mv(`${__dirname}/images/${filesDir}/${file.name}`, err => {
-            console.log(file.name)
             if (err) {
                 console.error(err);
                 return res.status(500).send(err);
@@ -36,7 +35,7 @@ app.post('/upload', (req, res) => {
     }
 
     res.json({
-        filePath: `/images/${filesDir}`,
+        filePath: `${filesDir}`,
     });
 });
 
