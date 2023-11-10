@@ -8,6 +8,10 @@ import { GetPercentInstructions } from "./GetPercentInstructions";
 import {GetAllUsers} from "./GetAllUsers";
 import {GetUserByID} from "./GetUserByID";
 import {AuthUser} from "./AuthUser";
+import {GetPercentKnowledge} from "./GetPercentKnowledge";
+import {AddKnowledge} from "./AddKnowledge";
+import {GetAllKnowledge} from "./GetAllKnowledge";
+import {AddUsersKnowledge} from "./AddUsersKnowledge";
 
 function App() {
     return (
@@ -23,6 +27,13 @@ function App() {
             <GetAllUsers />
             <GetUserByID />
             <AuthUser />
+
+            <br></br>
+
+            <AddKnowledge />
+            <GetAllKnowledge />
+            <AddUsersKnowledge />
+            <GetPercentKnowledge />
         </div>
     );
 }
