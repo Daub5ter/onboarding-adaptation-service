@@ -1,14 +1,12 @@
 import {useState} from "react";
 
-export const AuthUser = () => {
-    const [showed, setShowed] = useState();
-
-    const handleShow = async () => {
+export const AuthUser = (email, password) => {
+    const handleShow = async (email, password) => {
         const payload = {
             action: "auth_user",
-            email: {
-                email: "sysadmin@test.com",
-                password: "sysadmin",
+            auth: {
+                email: email,
+                password: password,
             }
         }
 
@@ -21,22 +19,32 @@ export const AuthUser = () => {
             headers: headers,
         });
 
-        const data = await response.json();
-
-        setShowed(data);
+        return await response.json()
     }
 
+    return handleShow(email, password);
+       /* <>
+            <div>
+                <h1>Login</h1>
+                <input
+                    type="text"
+                    placeholder="Type email"
+                    id="login-email"
+                />
+                <input
+                    type="text"
+                    placeholder="Type password"
+                    id="login-password"
+                />
+            </div>
 
-    return (
-        <>
-            <button onClick={handleShow}>auth user</button>
+            <button onClick={handleShow}>Login</button>
 
             {showed && (
                 <div>
-                    <h2>authed</h2>
+                    <label>logged</label>
                 </div>
-
             )}
         </>
-    )
+    )*/
 }

@@ -1,4 +1,4 @@
-import { AddInstruction } from './AddInstruction'
+import { Onboarding } from './Onboarding'
 import { AddUsersInstruction} from "./AddUsersInstruction";
 import { SolveInstruction } from "./SolveInstruction";
 import { GetAllInstructions } from './GetAllInstructions'
@@ -16,24 +16,7 @@ import {AddUsersKnowledge} from "./AddUsersKnowledge";
 function App() {
     return (
         <div className="App">
-            <GetAllInstructions />
-            <GetOneInstruction />
-            <AddUsersInstruction />
-            <SolveInstruction />
-            <GetUsersInstructions />
-            <GetPercentInstructions />
-            <AddInstruction />
-
-            <GetAllUsers />
-            <GetUserByID />
-            <AuthUser />
-
-            <br></br>
-
-            <AddKnowledge />
-            <GetAllKnowledge />
-            <AddUsersKnowledge />
-            <GetPercentKnowledge />
+            <Onboarding />
         </div>
     );
 }
