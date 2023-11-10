@@ -1,10 +1,14 @@
 import { AddInstruction } from './AddInstruction'
-import { ShowAllInstructions } from './ShowAllInstructions'
+import { AddUsersInstruction} from "./AddUsersInstruction";
+import { GetAllInstructions } from './GetAllInstructions'
+import { GetOneInstruction } from "./GetOneInstruction";
 
 function App() {
     return (
         <div className="App">
-            <ShowAllInstructions />
+            <GetAllInstructions />
+            <GetOneInstruction />
+            <AddUsersInstruction />
             <AddInstruction />
         </div>
     );
