@@ -32,7 +32,6 @@ export const GetOneInstruction = () => {
 
             {showed && (
                 <div>
-                    <h2>test</h2>
                     <h2>{showed.data.title}</h2>
                     <h2>{showed.data.description}</h2>
                 </div>
