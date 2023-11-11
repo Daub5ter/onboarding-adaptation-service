@@ -21,12 +21,10 @@ function Home() {
 	};
 
 	const servicePoints = [
-		'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-		'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-		'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-		'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-		'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-		'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
+		'Наша компания предлагает услуги лёгкого онбординга и адаптации сотрудников.',
+		'Мы поможем вашим новым сотрудникам быстро и комфортно войти в рабочий процесс, познакомим их с коллективом и корпоративной культурой, а также обеспечим необходимую поддержку на первых этапах работы.',
+		'Наша цель - создать благоприятную атмосферу для успешного старта новых сотрудников и увеличить их мотивацию и эффективность в работе.',
+		'Доверьте нам заботу о ваших сотрудниках, и вы увидите, как они станут неотъемлемой частью вашей команды!',
 	];
 
 	return (
@@ -37,9 +35,9 @@ function Home() {
 						<span className="content-title" style={{ color: '#FBFF33', fontWeight: 'bold'}}>CallChanSolutions</span> - лучшее решение для вашей компании.
 					</h1>
 					<p className="content-text">
-						Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-						dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-						commodo consequat.
+						С нами адаптация сотрудников станет легкой и приятной. Опробуйте наш сервис и свяжитесь с нами
+						Решение трека "Сервис онбординга и адаптации сотрудников"
+						Московский инновационный кластер. Лидеры цифровой трансформации & PROSCOM
 					</p>
 					<button className="content-button" onClick={handleLoginClick}>
 						Вход
@@ -56,7 +54,7 @@ function Home() {
 				<div className="service-container">
 					<img src={aboutUsIcon} alt="about us" className="service-icon" />
 					<div className="service-content">
-						<h3>Lorem Lorem:</h3>
+						<h3>Почему именно мы?</h3>
 						<ul className="service-list">
 							{servicePoints.map((point, index) => (
 								<li key={index}>{point}</li>
@@ -73,16 +71,16 @@ function Home() {
 							<h3>Безопасность</h3>
 							<img src={arrow} alt="Стрелка" />
 						</div>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-							dolore magna aliqua.</p>
+						<p>Мы используем современные технологии быстрой и безопасной передачи данных,
+							легко поддерживая сервис.</p>
 					</div>
 					<div className="advantage advantage-right">
 						<div className="advantage-header">
 							<h3>Универсальность</h3>
 							<img src={arrow} alt="Стрелка" />
 						</div>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-							dolore magna aliqua.</p>
+						<p>Наша компания предлагает интерактивно простые и понятные инструкции для легкого понимая
+							своей работы сотрудником и решение различных возникающих вопросов и проблем.</p>
 					</div>
 				</div>
 				<div className="row">
@@ -91,16 +89,16 @@ function Home() {
 							<h3>Быстрый доступ</h3>
 							<img src={arrow} alt="Стрелка" />
 						</div>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-							dolore magna aliqua.</p>
+						<p>Мы работаем непосредственно с Вами, предоставляя всевозможные функции, взависмости от желаний
+							и нужд.</p>
 					</div>
 					<div className="advantage advantage-right">
 						<div className="advantage-header">
 							<h3>Надежность</h3>
 							<img src={arrow} alt="Стрелка" />
 						</div>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-							dolore magna aliqua.</p>
+						<p>Мы предоставляем возможность создавать собственные информационные блоки и инструкции.
+							Реализуем интерактивные видео для полного погружения сотрудника в новую среду.</p>
 					</div>
 				</div>
 			</div>
