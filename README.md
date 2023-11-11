@@ -1,17 +1,21 @@
 # onboarding-adaptation-service
 Service for hackaton i.moscov &amp; Proscom 
 
+
 Серивс работает на стеке технологий: React, NodeJS, Golang, Docker.
 Для решения были использованы также UE5, Blender, Figma, Adobe Premier Pro, Photoshop.
 Проект построен по микросервесной архитектуре. 
 
+
 На сайте имеет три страницы (Главная, Онбординг и Адаптация), каждая отвечает за свои функции.
 Также имеются функции по типу создания различных объектов, просмотров их и выполнения.
+
 
 Имя - пароль для входа в тестовые аккаунты:
 accountant@test.com - accountant
 sysadmin@test.com - sysadmin
 employer@test.com - employer
+
 
 Примеры вызова функций бэкэнда:
 {
@@ -23,15 +27,18 @@ employer@test.com - employer
         "password": "employer"
     }
 }
+
 {
     "action": "get_all_user"
 }
+
 {
     "action": "get_user_by_email",
     "email": {
         "email": "sysadmin@test.com"
     }
 }
+
 {
     "action": "auth_user",
     "auth": {
@@ -39,18 +46,21 @@ employer@test.com - employer
         "password": "sysadmin"
     }
 }
+
 {
     "action": "get_all_knowledge",
     "id": {
         "id": 1
     }
 }
+
 {
     "action": "get_percent_knowledge",
     "id": {
         "id": 1
     }
 }
+
 {
     "action": "add_knowledge",
     "known": {
@@ -58,6 +68,7 @@ employer@test.com - employer
         "description": "2tes3t"
     }
 }
+
 {
     "action": "add_users_knowledge",
     "users_known": {
@@ -65,9 +76,11 @@ employer@test.com - employer
         "knowledge_id": 2
     }
 }
+
 {
     "action": "get_all_instructions"
 }
+
 {
     "action": "add_instruction",
     "instruction": {
@@ -75,6 +88,7 @@ employer@test.com - employer
         "description": "222testdescr2iption"
     }
 }
+
 {
     "action": "add_users_instruction",
     "users_instructions": {
@@ -82,6 +96,7 @@ employer@test.com - employer
         "instruction_id": 3
     }
 }
+
 {
     "action": "solve_instruction",
     "users_instructions": {
@@ -89,24 +104,28 @@ employer@test.com - employer
         "instruction_id": 2
     }
 }
+
 {
     "action": "get_users_instructions",
     "id": {
         "id": 2
     }
 }
+
 {
     "action": "get_instruction",
     "id": {
         "id": 2
     }
 }
+
 {
     "action": "get_percent_instructions",
     "id": {
         "id": 3
     }
 }
+
 
 SQL скрипт для создания бд с пользователями:
 -- public.instructions definition
@@ -125,7 +144,6 @@ CREATE TABLE public.instructions (
 	CONSTRAINT instructions_pkey PRIMARY KEY (id)
 );
 
-
 -- public.knowledges definition
 
 -- Drop table
@@ -140,7 +158,6 @@ CREATE TABLE public.knowledges (
 	updated_at timestamp NULL,
 	CONSTRAINT knowledges_pkey PRIMARY KEY (id)
 );
-
 
 -- public.users definition
 
@@ -160,7 +177,6 @@ CREATE TABLE public.users (
 	CONSTRAINT users_pkey PRIMARY KEY (id)
 );
 
-
 -- public.users_instructions definition
 
 -- Drop table
@@ -175,7 +191,6 @@ CREATE TABLE public.users_instructions (
 	CONSTRAINT users_instructions_instruction_id_fkey FOREIGN KEY (instruction_id) REFERENCES public.instructions(id),
 	CONSTRAINT users_instructions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
 );
-
 
 -- public.users_knowledges definition
 
