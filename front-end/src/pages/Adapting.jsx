@@ -6,6 +6,8 @@ import 'slick-carousel/slick/slick-theme.css';
 import './Adapting.css';
 import PrevArrow from './assets/arrow-left.svg';
 import NextArrow from './assets/arrow-right.svg';
+import img1 from './assets/todo.jpg';
+import img2 from './assets/todo2.jpg';
 
 
 const slides = [
@@ -13,7 +15,7 @@ const slides = [
 		{
 			title: '',
 			description: 'Отчет "Экспресс-проверка ведения учета" позволяет провести быструю проверку правильности отражения операций в программе, в том числе проанализировать состояние бухгалтерского учета.',
-			mediaUrl: 'https://play-lh.googleusercontent.com/HUuQc4Zpl6x7fUyX-jFMmcuUbW77REw4UKl5rfhHfP4VY6ctBU1w1I_RZWsXaojFgIo=w480-h960-rw'
+			mediaUrl: img1
 		},
 		{
 			title: 'Шаг 1',
@@ -39,7 +41,7 @@ const slides = [
 		{
 			title: 'Шаг 4',
 			description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore',
-			mediaUrl: 'https://goods-photos.static1-sima-land.com/items/4668517/0/1600.jpg?v=1605611154'
+			mediaUrl: img2
 		},
 		{
 			title: 'Шаг 5',
