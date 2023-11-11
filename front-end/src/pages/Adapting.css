@@ -26,6 +26,7 @@
 .photo-column {
     width: 90%;
     height: auto;
+    align-self: center;
 }
 
 .instruction-column {
