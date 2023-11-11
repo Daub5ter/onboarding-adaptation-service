@@ -10,12 +10,13 @@ import img1 from './assets/1Cfirst.png';
 import img3 from './assets/1Csecond.png';
 import img4 from './assets/1Cthird.png';
 import img2 from './assets/1Cfouth.png'
+import img5 from './assets/sysadmin1.png'
 
 const slides = [
 	[
 		{
 			title: '',
-			description: 'Отчет "Экспресс-проверка ведения учета" позволяет провести быструю проверку правильности отражения операций в программе, в том числе проанализировать состояние бухгалтерского учета.',
+			description: 'Подключение через SSH к серверу в Linux',
 			mediaUrl: img1
 		},
 		{
@@ -32,13 +33,13 @@ const slides = [
 	],
 	[
 		{
-			title: 'Шаг 3',
-			description: 'По кнопке "Показать настройки" установите в списке возможных проверок флажок по разделу "Анализ состояния бухгалтерского учета".',
-			mediaUrl: img3
+			title: 'Шаг 4',
+			description: 'Если пытаетесь подключится через SSH к этому серверу первый раз, то утилита также попросит подтвердить добавление нового устройства в свой список известных устройств, здесь нужно набрать yes и нажать Enter.',
+			mediaUrl: img5
 		},
 		{
-			title: 'Шаг 4',
-			description: 'Отчет формируется по кнопке "Выполнить проверку". Проверка проводится в отношении рабочего плана счетов, корректности корреспонденции счетов в проводках, отсутствия остатков по счетам, которые должны быть закрыты на конец отчетного периода и др.'
+			title: 'Шаг 5',
+			description: 'Теперь вы подключены, и все вводимые далее команды будут выполнены на удаленном сервере'
 		},
 	],
 	[
@@ -86,7 +87,7 @@ function Adapting() {
 								<img src={stepList[currentSlide].mediaUrl} alt="to do" />
 							</div>
 							<div className="instruction-column">
-								<h3>Как в "1С:Бухгалтерии" выполнить экспресс-проверку состояния бухгалтерского учета?</h3>
+								<h3>Подключение к серверу через SSH в Linux</h3>
 								<ul className="instruction-list">
 									{stepList.map((item, stepIndex) => (
 										<li className="instruction-step" key={stepIndex}>
