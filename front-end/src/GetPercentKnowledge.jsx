@@ -1,13 +1,12 @@
 import {useState} from "react";
 
-export const GetPercentKnowledge = () => {
-    const [showed, setShowed] = useState();
+export const GetPercentKnowledge = (userID) => {
 
-    const handleShow = async () => {
+    const handleShow = async (userID) => {
         const payload = {
             action: "get_percent_knowledge",
             id: {
-                id: 1,
+                id: userID,
             }
         }
 
@@ -20,13 +19,13 @@ export const GetPercentKnowledge = () => {
             headers: headers,
         });
 
-        const data = await response.json();
-
-        setShowed(data);
+        return await response.json();
     }
 
+    return handleShow(userID);
+}
 
-    return (
+/*    return (
         <>
             <button onClick={handleShow}>get percent knowledge</button>
 
@@ -39,4 +38,4 @@ export const GetPercentKnowledge = () => {
         </>
     )
 
-}
+}*/

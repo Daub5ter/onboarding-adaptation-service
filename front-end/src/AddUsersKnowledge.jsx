@@ -1,14 +1,14 @@
 import { useState } from "react";
 
-export const AddUsersKnowledge = () => {
+export const AddUsersKnowledge = (userID, knowledgeID) => {
     const [added, setAdded] = useState();
 
-    const handleShow = async () => {
+    const handleShow = async (userID, knowledgeID) => {
         const payload = {
             action: "add_users_knowledge",
             users_known: {
-                user_id: 1,
-                knowledge_id: 1,
+                user_id: userID,
+                knowledge_id: knowledgeID,
             }
         }
 
@@ -21,13 +21,12 @@ export const AddUsersKnowledge = () => {
             headers: headers,
         });
 
-        const data = await response.json();
-
-        setAdded(data);
+        return await response.json();
     }
 
-
-    return (
+    return handleShow(userID, knowledgeID);
+}
+    /*return (
         <>
             <button onClick={handleShow}>add users knowledge</button>
 
@@ -39,4 +38,4 @@ export const AddUsersKnowledge = () => {
             )}
         </>
     )
-}
+}*/

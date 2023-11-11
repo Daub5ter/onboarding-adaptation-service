@@ -1,11 +1,13 @@
 import { useState } from "react";
 import {AuthUser} from "./AuthUser";
 import {GetAllKnowledge} from "./GetAllKnowledge";
+import {GetPercentKnowledge} from "./GetPercentKnowledge";
 
 export const Onboarding = () => {
     const [logined, setLogined] = useState();
     const [knowledgeState, setKnowledge] = useState();
-
+    const [percentState, setPercent] = useState();
+    const [passState, setPass] = useState();
     const handleMain = async () => {
         const email = document.getElementById("login-email").value;
         const password = document.getElementById("login-password").value;
@@ -18,6 +20,9 @@ export const Onboarding = () => {
 
             const knowledge = await GetAllKnowledge(user.data.id);
             setKnowledge(knowledge);
+
+            const percent = await GetPercentKnowledge(user.data.id);
+            setPercent(percent);
         }
     };
     return (
@@ -40,15 +45,20 @@ export const Onboarding = () => {
             {logined && (
                 <div>
                 <h2>Successful logined</h2>
+                    <p id="user-id" style={{ display: 'none' }}>{logined.data.id}</p>
                 </div>
             )}
 
             {knowledgeState && (
-                <div>
-                    <h2>{knowledgeState.data[1].title}</h2>
-                    <h2>{knowledgeState.data[1].description}</h2>
-                    <h2>{knowledgeState.data[1].solved_at}</h2>
-                </div>
+                    <div>
+                        <h2>{knowledgeState.data[1].title}</h2>
+                        <h2>{knowledgeState.data[1].description}</h2>
+                        <p id="knowledge-id" style={{ display: 'none' }}>{knowledgeState.data[1].id}</p>
+                    </div>
+            )}
+
+            {percentState && (
+                <h1>percent = {percentState.data}%</h1>
             )}
         </>
     );

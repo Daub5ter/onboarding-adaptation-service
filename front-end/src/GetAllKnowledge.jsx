@@ -22,19 +22,4 @@ export const GetAllKnowledge = (id) => {
     }
 
     return handleShow(id);
-
-    /*return (
-        <>
-            <button onClick={handleShow}>show all knowledge</button>
-
-            {showed && (
-                <div>
-                    <h2>{showed.data[1].title}</h2>
-                    <h2>{showed.data[1].description}</h2>
-                </div>
-
-            )}
-        </>
-    )*/
-
 }

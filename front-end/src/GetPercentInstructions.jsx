@@ -1,13 +1,13 @@
 import {useState} from "react";
 
-export const GetPercentInstructions = () => {
+export const GetPercentInstructions = (id) => {
     const [showed, setShowed] = useState();
 
-    const handleShow = async () => {
+    const handleShow = async (id) => {
         const payload = {
             action: "get_percent_instructions",
             id: {
-                id: 1,
+                id: id,
             }
         }
 
@@ -20,23 +20,9 @@ export const GetPercentInstructions = () => {
             headers: headers,
         });
 
-        const data = await response.json();
-
-        setShowed(data);
+        return await response.json();
     }
 
-
-    return (
-        <>
-            <button onClick={handleShow}>get percent instructions</button>
-
-            {showed && (
-                <div>
-                    <h2>{showed.data}</h2>
-                </div>
-
-            )}
-        </>
-    )
+    return handleShow(id);
 
 }

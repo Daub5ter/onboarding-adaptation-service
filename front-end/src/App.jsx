@@ -12,11 +12,14 @@ import {GetPercentKnowledge} from "./GetPercentKnowledge";
 import {AddKnowledge} from "./AddKnowledge";
 import {GetAllKnowledge} from "./GetAllKnowledge";
 import {AddUsersKnowledge} from "./AddUsersKnowledge";
+import {Adaptation} from "./Adaptation";
 
 function App() {
     return (
         <div className="App">
             <Onboarding />
+            <br/>
+            <Adaptation />
         </div>
     );
 }
