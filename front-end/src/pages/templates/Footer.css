@@ -1,0 +1,36 @@
+.footer {
+    background-color: #232323;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-weight: normal;
+    font-size: 14px;
+    margin-top: 200px;
+}
+
+.contact-info {
+    margin-bottom: 10px;
+    padding: 40px 10px 30px 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.contact-info p {
+    margin: 0 10px;
+}
+
+.all-rights {
+    margin-bottom: 15px;
+    padding-left: 90px;
+    padding-right: 90px;
+    background-color: rgba(49, 49, 49, 0.32);
+    border-radius: 100px;
+}
+
+.contact-items {
+    display: flex;
+    justify-content: center;
+}

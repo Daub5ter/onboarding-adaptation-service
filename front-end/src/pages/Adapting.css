@@ -1,0 +1,52 @@
+.adapting-container {
+    max-width: 1250px;
+    margin: auto;
+    margin-top: 45px;
+}
+.adapting-container h2 {
+    font-size: 35px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 60px;
+}
+
+.adapting-content {
+    display: flex;
+    justify-items: center;
+    justify-content: center;
+}
+
+.photo-column img {
+    width: 70%;
+    height: auto;
+    border-radius: 10px;
+    padding-left: 50px;
+}
+.photo-column {
+    width: 60%;
+}
+
+.instruction-column {
+    padding-left: 10px;
+}
+
+.instruction-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.instruction-column h3 {
+    font-size: 25px;
+    margin: 0;
+}
+
+.instruction-step {
+    padding: 0 70px 0 0;
+    margin-bottom: 30px;
+}
+
+.instruction-list h4 {
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.4);
+}

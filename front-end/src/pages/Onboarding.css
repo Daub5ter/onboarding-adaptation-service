@@ -1,0 +1,49 @@
+.onboarding {
+    max-width: 1250px;
+    margin: auto;
+    margin-top: 115px;
+}
+
+.onboarding h2 {
+    font-size: 35px;
+}
+
+.onboarding h3 {
+    font-size: 28px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.onboarding-counter {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.28);
+}
+
+.onboarding-container {
+    border-left: 1px solid #FBFF33;
+    padding: 5px 10px 10px 15px;
+    margin-top: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.onboarding-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.onboarding-container h3 {
+    margin-top: 0;
+}
+
+.onboarding-container p {
+    margin-top: 10px;
+}
+
+.onboarding-left {
+    width: 92%;
+}
+
+.onboarding-container img {
+    width: 3%;
+}
