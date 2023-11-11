@@ -56,6 +56,7 @@ type KnowledgePayload struct {
 type InstructionPayload struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	Path        string `json:"path"`
 }
 
 type UsersKnowledgesPayload struct {

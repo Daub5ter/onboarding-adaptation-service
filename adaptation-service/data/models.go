@@ -31,6 +31,7 @@ type Instructions struct {
 	ID          int       `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
+	Path        string    `json:"path"`
 	CreatedAt   time.Time `json:"created_at,omitempty"`
 	UpdatedAt   time.Time `json:"updated_at,omitempty"`
 }
@@ -50,7 +51,7 @@ func (i *Instructions) GetAll() ([]*Instructions, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `select id, title, description, created_at, updated_at from instructions order by id`
+	query := `select id, title, description, path, created_at, updated_at from instructions order by id`
 
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
@@ -66,6 +67,7 @@ func (i *Instructions) GetAll() ([]*Instructions, error) {
 			&instruction.ID,
 			&instruction.Title,
 			&instruction.Description,
+			&instruction.Path,
 			&instruction.CreatedAt,
 			&instruction.UpdatedAt,
 		)
@@ -85,11 +87,12 @@ func (i *Instructions) Insert(instruction Instructions) (int, error) {
 	defer cancel()
 
 	var newID int
-	stmt := `insert into instructions (title, description, created_at, updated_at) values ($1, $2, $3, $4) returning id`
+	stmt := `insert into instructions (title, description, path, created_at, updated_at) values ($1, $2, $3, $4, $5) returning id`
 
 	err := db.QueryRowContext(ctx, stmt,
 		instruction.Title,
 		instruction.Description,
+		instruction.Path,
 		time.Now(),
 		time.Now(),
 	).Scan(&newID)
@@ -105,7 +108,7 @@ func (i *Instructions) GetOne(id int) (*Instructions, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `select id, title, description, created_at, updated_at from instructions where id = $1`
+	query := `select id, title, description, path, created_at, updated_at from instructions where id = $1`
 
 	var instructions Instructions
 	row := db.QueryRowContext(ctx, query, id)
@@ -114,6 +117,7 @@ func (i *Instructions) GetOne(id int) (*Instructions, error) {
 		&instructions.ID,
 		&instructions.Title,
 		&instructions.Description,
+		&instructions.Path,
 		&instructions.CreatedAt,
 		&instructions.UpdatedAt,
 	)
@@ -168,7 +172,8 @@ func (ui *UsersInstructions) GetAll(id int) ([]*Instructions, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `select instructions.id, instructions.title, instructions.description, instructions.created_at, instructions.updated_at
+	query := `select instructions.id, instructions.title, instructions.description, instructions.path,
+       	instructions.created_at, instructions.updated_at
 		from instructions, users_instructions
 		where users_instructions.instruction_id = instructions.id
 		and users_instructions.user_id = $1;`
@@ -187,6 +192,7 @@ func (ui *UsersInstructions) GetAll(id int) ([]*Instructions, error) {
 			&instruction.ID,
 			&instruction.Title,
 			&instruction.Description,
+			&instruction.Path,
 			&instruction.CreatedAt,
 			&instruction.UpdatedAt,
 		)
