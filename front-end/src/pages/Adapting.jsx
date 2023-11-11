@@ -7,6 +7,7 @@ import './Adapting.css';
 import PrevArrow from './assets/arrow-left.svg';
 import NextArrow from './assets/arrow-right.svg';
 
+
 const slides = [
 	[
 		{
