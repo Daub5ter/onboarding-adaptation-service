@@ -3,7 +3,7 @@ import React from 'react';
 import './Home.css';
 import { useNavigate } from 'react-router-dom';
 import video from './assets/aboutUs.mp4';
-import aboutUsIcon from './assets/about-us-icon.png';
+import aboutUsIcon from './assets/about-us-icon.jpg';
 import arrow from './assets/arrow.svg';
 
 const videoStyle = {
@@ -32,12 +32,11 @@ function Home() {
 			<div className="home-container">
 				<div className="content-left">
 					<h1>
-						<span className="content-title" style={{ color: '#FBFF33', fontWeight: 'bold'}}>CallChanSolutions</span> - лучшее решение для вашей компании.
+						<span className="content-title">CallChanSolutions</span> - лучшее решение для вашей компании.
 					</h1>
 					<p className="content-text">
 						С нами адаптация сотрудников станет легкой и приятной. Опробуйте наш сервис и свяжитесь с нами
-						Решение трека "Сервис онбординга и адаптации сотрудников"
-						Московский инновационный кластер. Лидеры цифровой трансформации & PROSCOM
+						Решение трека "Сервис онбординга и адаптации сотрудников". Лидеры цифровой трансформации & PROSCOM
 					</p>
 					<button className="content-button" onClick={handleLoginClick}>
 						Вход
@@ -49,7 +48,7 @@ function Home() {
 			</div>
 			<div className="service">
 				<h2>
-					О нашем <span className="service-title" style={{ color: '#FBFF33', fontWeight: 'bold'}}>сервисе</span>
+					О нашем <span className="service-about" style={{ color: '#FBFF33', fontWeight: 'bold'}}>сервисе</span>
 				</h2>
 				<div className="service-container">
 					<img src={aboutUsIcon} alt="about us" className="service-icon" />
@@ -64,7 +63,7 @@ function Home() {
 				</div>
 			</div>
 			<div className="advantages-container">
-				<h2>Преимущества нашего <span style={{ color: '#FBFF33', fontWeight: 'bold'}}>сервиса</span></h2>
+				<h2>Преимущества нашего <span className="service-about" style={{ color: '#FBFF33', fontWeight: 'bold'}}>сервиса</span></h2>
 				<div className="row">
 					<div className="advantage">
 						<div className="advantage-header">
