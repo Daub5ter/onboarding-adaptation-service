@@ -6,9 +6,10 @@ import 'slick-carousel/slick/slick-theme.css';
 import './Adapting.css';
 import PrevArrow from './assets/arrow-left.svg';
 import NextArrow from './assets/arrow-right.svg';
-import img1 from './assets/todo.jpg';
-import img2 from './assets/todo2.jpg';
-
+import img1 from './assets/1Cfirst.png';
+import img3 from './assets/1Csecond.png';
+import img4 from './assets/1Cthird.png';
+import img2 from './assets/1Cfouth.png'
 
 const slides = [
 	[
@@ -24,33 +25,32 @@ const slides = [
 	],
 	[
 		{
-			title: 'Шаг 4',
-			description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore',
-			mediaUrl: 'https://goods-photos.static1-sima-land.com/items/4668517/0/1600.jpg?v=1605611154'
+			title: 'Шаг 2',
+			description: 'Укажите период формирования отчета и организацию, по которой проводится экспресс-проверка. Для получения достоверной информации при формировании отчета по разделам, не связанным с учетом НДС, выбирайте периоды, кратные календарному месяцу.',
+			mediaUrl: img2
 		},
-		{
-			title: 'Шаг 5',
-			description: 'Lorem ipsum dolor sit amet, consectetur adipiscing'
-		},
-		{
-			title: 'Шаг 6',
-			description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod ididunt'
-		}
 	],
 	[
 		{
-			title: 'Шаг 4',
-			description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore',
-			mediaUrl: img2
+			title: 'Шаг 3',
+			description: 'По кнопке "Показать настройки" установите в списке возможных проверок флажок по разделу "Анализ состояния бухгалтерского учета".',
+			mediaUrl: img3
 		},
 		{
+			title: 'Шаг 4',
+			description: 'Отчет формируется по кнопке "Выполнить проверку". Проверка проводится в отношении рабочего плана счетов, корректности корреспонденции счетов в проводках, отсутствия остатков по счетам, которые должны быть закрыты на конец отчетного периода и др.'
+		},
+	],
+	[
+		{
 			title: 'Шаг 5',
-			description: 'Lorem ipsum dolor sit amet, consectetur adipiscing'
+			description: 'Детализируйте отчет, раскрыв соответствующие подразделы по знаку "+". В отчет выводится подробная информация о результатах проверки, возможных причинах возникновения ошибок, рекомендациях по их устранению. По некоторым подразделам отчета возможна детализация вплоть до первичного документа, который может быть открыт для редактирования или просмотра по двойному щелчку мыши на соответствующей строке отчета..',
+			mediaUrl: img4
 		},
 		{
 			title: 'Шаг 6',
-			description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod ididunt'
-		}
+			description: 'Следуя рекомендациям отчета, устраните выявленные ошибки и повторите экспресс-проверку. Рекомендации отчета можно проигнорировать, если есть уверенность, что проблемная ситуация не является ошибкой и (или) не повлияет на правильность ведения учета и формирования отчетности.'
+		},
 	],
 ];
 
