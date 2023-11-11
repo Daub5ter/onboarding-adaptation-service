@@ -11,16 +11,27 @@ import NextArrow from './assets/arrow-right.svg';
 const slides = [
 	[
 		{
-			title: 'Шаг 1',
-			description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore',
+			title: '',
+			description: 'Отчет "Экспресс-проверка ведения учета" позволяет провести быструю проверку правильности отражения операций в программе, в том числе проанализировать состояние бухгалтерского учета.',
 			mediaUrl: 'https://play-lh.googleusercontent.com/HUuQc4Zpl6x7fUyX-jFMmcuUbW77REw4UKl5rfhHfP4VY6ctBU1w1I_RZWsXaojFgIo=w480-h960-rw'
 		},
 		{
-			title: 'Шаг 2',
+			title: 'Шаг 1',
+			description: 'Раздел:Отчеты–Экспресс-проверка.'
+		},
+	],
+	[
+		{
+			title: 'Шаг 4',
+			description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore',
+			mediaUrl: 'https://goods-photos.static1-sima-land.com/items/4668517/0/1600.jpg?v=1605611154'
+		},
+		{
+			title: 'Шаг 5',
 			description: 'Lorem ipsum dolor sit amet, consectetur adipiscing'
 		},
 		{
-			title: 'Шаг 3',
+			title: 'Шаг 6',
 			description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod ididunt'
 		}
 	],
@@ -38,7 +49,7 @@ const slides = [
 			title: 'Шаг 6',
 			description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod ididunt'
 		}
-	]
+	],
 ];
 
 function Adapting() {
@@ -73,7 +84,7 @@ function Adapting() {
 								<img src={stepList[currentSlide].mediaUrl} alt="to do" />
 							</div>
 							<div className="instruction-column">
-								<h3>Шаги адаптации:</h3>
+								<h3>Как в "1С:Бухгалтерии" выполнить экспресс-проверку состояния бухгалтерского учета?</h3>
 								<ul className="instruction-list">
 									{stepList.map((item, stepIndex) => (
 										<li className="instruction-step" key={stepIndex}>
