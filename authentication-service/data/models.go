@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
+	"github.com/golang-jwt/jwt/v5"
 	"log"
 	"time"
 
@@ -12,44 +14,50 @@ import (
 
 const dbTimeout = time.Second * 3
 
+const key = "onboarding-adaptation-service secure jwt key"
+
 var db *sql.DB
 
-// New is the function used to create an instance of the data package. It returns the type
-// Model, which embeds all the types we want to be available to our application.
+// New create a new model
 func New(dbPool *sql.DB) Models {
 	db = dbPool
 
 	return Models{
-		User: User{},
+		User:    User{},
+		UserJWT: UserJWT{},
 	}
 }
 
-// Models is the type for this package. Note that any model that is included as a member
-// in this type is available to us throughout the application, anywhere that the
-// app variable is used, provided that the model is also added in the New function.
+// Models store all models service`s structure
 type Models struct {
-	User User
+	User    User
+	UserJWT UserJWT
 }
 
-// User is the structure which holds one user from the database.
+// User store data of one user
 type User struct {
-	ID         int       `json:"id"`
-	Email      string    `json:"email"`
-	FirstName  string    `json:"first_name,omitempty"`
-	LastName   string    `json:"last_name,omitempty"`
-	Password   string    `json:"password"`
-	Profession string    `json:"profession"`
-	CreatedAt  time.Time `json:"created_at,omitempty"`
-	UpdatedAt  time.Time `json:"updated_at,omitempty"`
+	ID        int       `json:"id"`
+	Email     string    `json:"email"`
+	FirstName string    `json:"first_name,omitempty"`
+	LastName  string    `json:"last_name,omitempty"`
+	Password  string    `json:"password,omitempty"`
+	Active    int       `json:"active"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// GetAll returns a slice of all users, sorted by last name
+type UserJWT struct {
+	jwt.RegisteredClaims
+	Email string `json:"email"`
+}
+
+// GetAll returns all users
 func (u *User) GetAll() ([]*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `select id, email, first_name, last_name, password, profession, created_at, updated_at
-	from users order by first_name`
+	query := `select id, email, first_name, last_name, user_active, created_at, updated_at
+	from users order by last_name`
 
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
@@ -66,8 +74,7 @@ func (u *User) GetAll() ([]*User, error) {
 			&user.Email,
 			&user.FirstName,
 			&user.LastName,
-			&user.Password,
-			&user.Profession,
+			&user.Active,
 			&user.CreatedAt,
 			&user.UpdatedAt,
 		)
@@ -87,7 +94,34 @@ func (u *User) GetByEmail(email string) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `select id, email, first_name, last_name, password, profession, created_at, updated_at from users where email = $1`
+	query := `select id, email, first_name, last_name, user_active, created_at, updated_at from users where email = $1`
+
+	var user User
+	row := db.QueryRowContext(ctx, query, email)
+
+	err := row.Scan(
+		&user.ID,
+		&user.Email,
+		&user.FirstName,
+		&user.LastName,
+		&user.Active,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+// GetByEmailWithPassword returns one user by email with password
+func (u *User) GetByEmailWithPassword(email string) (*User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `select id, email, first_name, last_name, password, user_active, created_at, updated_at from users where email = $1`
 
 	var user User
 	row := db.QueryRowContext(ctx, query, email)
@@ -98,7 +132,7 @@ func (u *User) GetByEmail(email string) (*User, error) {
 		&user.FirstName,
 		&user.LastName,
 		&user.Password,
-		&user.Profession,
+		&user.Active,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -110,12 +144,39 @@ func (u *User) GetByEmail(email string) (*User, error) {
 	return &user, nil
 }
 
-// GetOne returns one user by id
+// GetOne returns one user by ID
 func (u *User) GetOne(id int) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `select id, email, first_name, last_name, password, profession, created_at, updated_at from users where id = $1`
+	query := `select id, email, first_name, last_name, user_active, created_at, updated_at from users where id = $1`
+
+	var user User
+	row := db.QueryRowContext(ctx, query, id)
+
+	err := row.Scan(
+		&user.ID,
+		&user.Email,
+		&user.FirstName,
+		&user.LastName,
+		&user.Active,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+// GetOneWithPassword returns one user by ID with password
+func (u *User) GetOneWithPassword(id int) (*User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `select id, email, first_name, last_name, password, user_active, created_at, updated_at from users where id = $1`
 
 	var user User
 	row := db.QueryRowContext(ctx, query, id)
@@ -126,7 +187,7 @@ func (u *User) GetOne(id int) (*User, error) {
 		&user.FirstName,
 		&user.LastName,
 		&user.Password,
-		&user.Profession,
+		&user.Active,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -138,8 +199,7 @@ func (u *User) GetOne(id int) (*User, error) {
 	return &user, nil
 }
 
-// Update updates one user in the database, using the information
-// stored in the receiver u
+// Update changes fields one user by ID
 func (u *User) Update() error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -148,7 +208,7 @@ func (u *User) Update() error {
 		email = $1,
 		first_name = $2,
 		last_name = $3,
-		profession = $4,
+		user_active = $4,
 		updated_at = $5
 		where id = $6
 	`
@@ -157,7 +217,7 @@ func (u *User) Update() error {
 		u.Email,
 		u.FirstName,
 		u.LastName,
-		u.Profession,
+		u.Active,
 		time.Now(),
 		u.ID,
 	)
@@ -169,7 +229,7 @@ func (u *User) Update() error {
 	return nil
 }
 
-// Delete deletes one user from the database, by User.ID
+// Delete deletes one user by User.ID
 func (u *User) Delete() error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -184,7 +244,7 @@ func (u *User) Delete() error {
 	return nil
 }
 
-// DeleteByID deletes one user from the database, by ID
+// DeleteByID deletes one user by ID
 func (u *User) DeleteByID(id int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -199,7 +259,7 @@ func (u *User) DeleteByID(id int) error {
 	return nil
 }
 
-// Insert inserts a new user into the database, and returns the ID of the newly inserted row
+// Insert creates user
 func (u *User) Insert(user User) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -210,7 +270,7 @@ func (u *User) Insert(user User) (int, error) {
 	}
 
 	var newID int
-	stmt := `insert into users (email, first_name, last_name, password, profession, created_at, updated_at)
+	stmt := `insert into users (email, first_name, last_name, password, user_active, created_at, updated_at)
 		values ($1, $2, $3, $4, $5, $6, $7) returning id`
 
 	err = db.QueryRowContext(ctx, stmt,
@@ -218,7 +278,7 @@ func (u *User) Insert(user User) (int, error) {
 		user.FirstName,
 		user.LastName,
 		hashedPassword,
-		user.Profession,
+		user.Active,
 		time.Now(),
 		time.Now(),
 	).Scan(&newID)
@@ -230,7 +290,7 @@ func (u *User) Insert(user User) (int, error) {
 	return newID, nil
 }
 
-// ResetPassword is the method we will use to change a user's password.
+// ResetPassword resets user`s password
 func (u *User) ResetPassword(password string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -249,9 +309,7 @@ func (u *User) ResetPassword(password string) error {
 	return nil
 }
 
-// PasswordMatches uses Go's bcrypt package to compare a user supplied password
-// with the hash we have stored for a given user in the database. If the password
-// and hash match, we return true; otherwise, we return false.
+// PasswordMatches checks password hash and password text
 func (u *User) PasswordMatches(plainText string) (bool, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(plainText))
 	if err != nil {
@@ -265,4 +323,62 @@ func (u *User) PasswordMatches(plainText string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// TODO
+func (u *User) CheckUserExists(email string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	var exists bool
+
+	query := `select exists(select email from users where email = $1)`
+
+	row := db.QueryRowContext(ctx, query, email)
+	err := row.Scan(exists)
+	if err != nil {
+		return exists, err
+	}
+
+	log.Println(exists)
+
+	return exists, nil
+}
+
+// CreateJWTToken creates jwt token for user
+func (uJWT *UserJWT) CreateJWTToken(email string) (string, error) {
+	exp := time.Now().Add(10 * time.Second)
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, UserJWT{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(exp),
+		},
+		Email: email,
+	})
+
+	signedString, err := token.SignedString([]byte(key))
+
+	if err != nil {
+		return "", fmt.Errorf("error creating signed string: %v", err)
+	}
+
+	return signedString, nil
+}
+
+// TODO	rens
+func (uJWT *UserJWT) CheckJWTToken(jwtToken string) (string, error) {
+	var userClaim UserJWT
+
+	token, err := jwt.ParseWithClaims(jwtToken, &userClaim, func(token *jwt.Token) (interface{}, error) {
+		return []byte(key), nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	if !token.Valid {
+		return "", errors.New("invalid token")
+	}
+
+	return userClaim.Email, nil
 }

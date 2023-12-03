@@ -144,3 +144,30 @@ func (app *Config) Authenticate(w http.ResponseWriter, r *http.Request) {
 
 	app.writeJSON(w, http.StatusAccepted, payload)
 }
+
+// AuthenticateSession checks valid or not session of user
+func (app *Config) AuthenticateSession(w http.ResponseWriter, r *http.Request) {
+	var requestPayload struct {
+		SessionToken string `json:"session_token"`
+	}
+
+	err := app.readJSON(w, r, &requestPayload)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	email, err := app.Models.UserJWT.CheckJWTToken(requestPayload.SessionToken)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	payload := jsonResponse{
+		Error:   false,
+		Message: fmt.Sprintf("session is valid"),
+		Data:    email,
+	}
+
+	app.writeJSON(w, http.StatusOK, payload)
+}
