@@ -26,7 +26,7 @@ function Header(props) {
 					</Link>
 				</nav>
 				<Link className="login-link" to="/login">
-					{props.isLoggedIn ? <p>{props.username}</p> : <p>Вход</p>}
+					{props.isLoggedIn ? <a>{props.username}</a> : <a>Вход</a>}
 				</Link>
 			</header>
 		</div>
