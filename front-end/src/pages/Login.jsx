@@ -4,18 +4,52 @@ import './Login.css';
 import EyeOpened from './assets/password.svg';
 import EyeClosed from './assets/hidden-password.svg';
 import { useNavigate } from 'react-router-dom';
+import {AuthUser} from "../Auth/AuthUser";
 
-function Login() {
+function fetchUserData(username, password) {
+	const payload = {
+		action: "auth_user",
+		auth: {
+			email: username,
+			password: password,
+		}
+	}
+
+	const headers = new Headers();
+	headers.append("Content-Type", "application/json");
+
+	return fetch("http:\/\/localhost:8080/handle", {
+		method: 'POST',
+		body: JSON.stringify(payload),
+		headers: headers,
+	})
+		.then(response => response.json())
+		.then(data => {
+			return data;
+		})
+		.catch(error => console.error(error));
+}
+
+
+function Login(props) {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
 	const navigate = useNavigate();
 	const handleLogin = () => {
-		if (username === 'a' && password === 'a') {
-			navigate('/');
-		} else {
-			alert('Неверные учетные данные. Пожалуйста, попробуйте еще раз.');
-		}
+
+		fetchUserData(username, password)
+			.then(data => {
+				console.log(data)
+				props.setIsLoggedIn(true);
+				props.setUsername(data.data.email);
+
+				navigate('/');
+			})
+			.catch(error => {
+				console.error(error)
+				alert('Неверные учетные данные. Пожалуйста, попробуйте еще раз.');
+			});
 	};
 
 	return (

@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import './Header.css';
 import logo from '../assets/logo.svg';
 
-function Header() {
+function Header(props) {
 	const { pathname } = useLocation();
 
 	return (
@@ -26,7 +26,7 @@ function Header() {
 					</Link>
 				</nav>
 				<Link className="login-link" to="/login">
-					Вход
+					{props.isLoggedIn ? <p>{props.username}</p> : <p>Вход</p>}
 				</Link>
 			</header>
 		</div>

@@ -1,7 +1,8 @@
 import {useState} from "react";
 
 export const AuthUser = (email, password) => {
-    const handleShow = async (email, password) => {
+    const [data, setData] = useState([]);
+    const handleShow = (email, password) => {
         const payload = {
             action: "auth_user",
             auth: {
@@ -13,13 +14,23 @@ export const AuthUser = (email, password) => {
         const headers = new Headers();
         headers.append("Content-Type", "application/json");
 
-        const response = await fetch("http:\/\/localhost:8080/handle", {
+        /*const response = await fetch("http:\/\/localhost:8080/handle", {
             method: 'POST',
             body: JSON.stringify(payload),
             headers: headers,
-        });
+        });*/
 
-        return await response.json()
+
+
+        const fetchInfo = () => {
+            return fetch("http:\/\/localhost:8080/handle", {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: headers,
+            }).then((res) => res.json()).then((d) => setData(d))
+        }
+
+        return data
     }
 
     return handleShow(email, password);

@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-import React from 'react';
+import React, {useState} from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import { Routes } from 'react-router-dom';
 import Header from './pages/templates/Header.jsx';
@@ -10,17 +10,19 @@ import Adapting from './pages/Adapting.jsx';
 import Login from './pages/Login.jsx';
 import './App.css';
 
-
 function App() {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [username, setUsername] = useState('');
+
     return (
         <Router>
             <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr auto', minHeight: '100vh' }}>
-                <Header />
+                <Header isLoggedIn={isLoggedIn} username={username} />
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/onboarding" element={<Onboarding />} />
                     <Route path="/adaptation" element={<Adapting />} />
-                    <Route path="/login" element={<Login />} />
+                    <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setUsername={setUsername} />} />
                 </Routes>
                 <Footer />
             </div>
