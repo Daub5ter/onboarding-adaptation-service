@@ -28,6 +28,7 @@ func (app *Config) routes() http.Handler {
 	mux.Post("/registrate", app.Registrate)
 	mux.Post("/get_by_email", app.GetByEmail)
 	mux.Post("/get_by_id", app.GetByID)
+	mux.Post("/authenticate_session", app.AuthenticateSession)
 
 	return mux
 }

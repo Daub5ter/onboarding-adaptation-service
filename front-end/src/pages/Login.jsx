@@ -4,7 +4,6 @@ import './Login.css';
 import EyeOpened from './assets/password.svg';
 import EyeClosed from './assets/hidden-password.svg';
 import { useNavigate } from 'react-router-dom';
-import {AuthUser} from "../Auth/AuthUser";
 
 function fetchUserData(username, password) {
 	const payload = {
@@ -30,7 +29,6 @@ function fetchUserData(username, password) {
 		.catch(error => console.error(error));
 }
 
-
 function Login(props) {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
@@ -40,9 +38,9 @@ function Login(props) {
 
 		fetchUserData(username, password)
 			.then(data => {
-				console.log(data)
 				props.setIsLoggedIn(true);
 				props.setUsername(data.data.email);
+				localStorage.setItem('session_token', data.data.session_token);
 
 				navigate('/');
 			})

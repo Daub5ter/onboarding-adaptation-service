@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 )
 
 // GetByEmail return user by email
@@ -124,7 +125,7 @@ func (app *Config) Authenticate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// validate the user against the database
-	user, err := app.Models.User.GetByEmail(requestPayload.Email)
+	user, err := app.Models.User.GetByEmailWithPassword(requestPayload.Email)
 	if err != nil {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
 		return
@@ -136,10 +137,36 @@ func (app *Config) Authenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	jwtToken, err := app.Models.UserJWT.CreateJWTToken(requestPayload.Email)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+
+	u := struct {
+		ID           int       `json:"id"`
+		Email        string    `json:"email"`
+		FirstName    string    `json:"first_name,omitempty"`
+		LastName     string    `json:"last_name,omitempty"`
+		Profession   string    `json:"profession"`
+		CreatedAt    time.Time `json:"created_at"`
+		UpdatedAt    time.Time `json:"updated_at"`
+		SessionToken string    `json:"session_token"`
+	}{}
+
+	u.ID = user.ID
+	u.Email = user.Email
+	u.FirstName = user.FirstName
+	u.LastName = user.LastName
+	u.Profession = user.Profession
+	u.CreatedAt = user.CreatedAt
+	u.UpdatedAt = user.UpdatedAt
+	u.SessionToken = jwtToken
+
 	payload := jsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("Logged in user %s", user.Email),
-		Data:    user,
+		Data:    u,
 	}
 
 	app.writeJSON(w, http.StatusAccepted, payload)

@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import { Routes } from 'react-router-dom';
 import Header from './pages/templates/Header.jsx';
@@ -9,10 +9,18 @@ import Onboarding from './pages/Onboarding.jsx';
 import Adapting from './pages/Adapting.jsx';
 import Login from './pages/Login.jsx';
 import './App.css';
+import LoadSession from "./Auth/LoadSession";
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [username, setUsername] = useState('');
+
+    useEffect(() => {
+        const sessionToken = localStorage.getItem("session_token");
+        if (sessionToken !== null) {
+            LoadSession(sessionToken, setIsLoggedIn, setUsername)
+        }
+    }, []);
 
     return (
         <Router>

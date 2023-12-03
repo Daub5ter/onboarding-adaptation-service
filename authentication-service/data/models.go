@@ -43,7 +43,7 @@ type User struct {
 	Email      string    `json:"email"`
 	FirstName  string    `json:"first_name,omitempty"`
 	LastName   string    `json:"last_name,omitempty"`
-	Password   string    `json:"password"`
+	Password   string    `json:"password,omitempty"`
 	Profession string    `json:"profession"`
 	CreatedAt  time.Time `json:"created_at,omitempty"`
 	UpdatedAt  time.Time `json:"updated_at,omitempty"`
@@ -59,7 +59,7 @@ func (u *User) GetAll() ([]*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `select id, email, first_name, last_name, password, profession, created_at, updated_at
+	query := `select id, email, first_name, last_name, profession, created_at, updated_at
 	from users order by first_name`
 
 	rows, err := db.QueryContext(ctx, query)
@@ -77,7 +77,6 @@ func (u *User) GetAll() ([]*User, error) {
 			&user.Email,
 			&user.FirstName,
 			&user.LastName,
-			&user.Password,
 			&user.Profession,
 			&user.CreatedAt,
 			&user.UpdatedAt,
@@ -95,6 +94,33 @@ func (u *User) GetAll() ([]*User, error) {
 
 // GetByEmail returns one user by email
 func (u *User) GetByEmail(email string) (*User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `select id, email, first_name, last_name, profession, created_at, updated_at from users where email = $1`
+
+	var user User
+	row := db.QueryRowContext(ctx, query, email)
+
+	err := row.Scan(
+		&user.ID,
+		&user.Email,
+		&user.FirstName,
+		&user.LastName,
+		&user.Profession,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+// GetByEmailWithPassword returns one user by email with password
+func (u *User) GetByEmailWithPassword(email string) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -126,7 +152,7 @@ func (u *User) GetOne(id int) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `select id, email, first_name, last_name, password, profession, created_at, updated_at from users where id = $1`
+	query := `select id, email, first_name, last_name, profession, created_at, updated_at from users where id = $1`
 
 	var user User
 	row := db.QueryRowContext(ctx, query, id)
@@ -136,7 +162,6 @@ func (u *User) GetOne(id int) (*User, error) {
 		&user.Email,
 		&user.FirstName,
 		&user.LastName,
-		&user.Password,
 		&user.Profession,
 		&user.CreatedAt,
 		&user.UpdatedAt,
@@ -280,7 +305,7 @@ func (u *User) PasswordMatches(plainText string) (bool, error) {
 
 // CreateJWTToken creates jwt token for user
 func (uJWT *UserJWT) CreateJWTToken(email string) (string, error) {
-	exp := time.Now().Add(10 * time.Second)
+	exp := time.Now().Add(1 * time.Minute)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, UserJWT{
 		RegisteredClaims: jwt.RegisteredClaims{
