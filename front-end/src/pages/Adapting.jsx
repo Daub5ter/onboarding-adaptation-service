@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -11,6 +11,7 @@ import img3 from './assets/1Csecond.png';
 import img4 from './assets/1Cthird.png';
 import img2 from './assets/1Cfouth.png'
 import img5 from './assets/sysadmin1.png'
+import {useNavigate} from "react-router-dom";
 
 const slides = [
 	[
@@ -55,7 +56,16 @@ const slides = [
 	],
 ];
 
-function Adapting() {
+function Adapting(props) {
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (!props.isLoggedIn) {
+			navigate('/login');
+		}
+	}, [props.isLoggedIn, navigate]);
+
+
 	const [currentSlide, setCurrentSlide] = useState(0);
 
 	const handlePrevClick = () => {

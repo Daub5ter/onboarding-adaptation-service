@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-unused-vars
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, {useEffect} from 'react';
+import {Link, useLocation, useNavigate} from 'react-router-dom';
 import './Header.css';
 import logo from '../assets/logo.svg';
 
@@ -26,7 +26,7 @@ function Header(props) {
 					</Link>
 				</nav>
 				<Link className="login-link" to="/login">
-					{props.isLoggedIn ? <a>{props.username}</a> : <a>Вход</a>}
+					{props.isLoggedIn ? <>{props.email}</> : <>Вход</>}
 				</Link>
 			</header>
 		</div>

@@ -13,24 +13,24 @@ import LoadSession from "./Auth/LoadSession";
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
 
     useEffect(() => {
         const sessionToken = localStorage.getItem("session_token");
         if (sessionToken !== null) {
-            LoadSession(sessionToken, setIsLoggedIn, setUsername)
+            LoadSession(sessionToken, setIsLoggedIn, setEmail)
         }
     }, []);
 
     return (
         <Router>
             <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr auto', minHeight: '100vh' }}>
-                <Header isLoggedIn={isLoggedIn} username={username} />
+                <Header isLoggedIn={isLoggedIn} email={email} />
                 <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/onboarding" element={<Onboarding />} />
-                    <Route path="/adaptation" element={<Adapting />} />
-                    <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setUsername={setUsername} />} />
+                    <Route path="/onboarding" element={<Onboarding isLoggedIn={isLoggedIn} email={email} />} />
+                    <Route path="/adaptation" element={<Adapting isLoggedIn={isLoggedIn} email={email}/>} />
+                    <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setEmail={setEmail} />} />
                 </Routes>
                 <Footer />
             </div>

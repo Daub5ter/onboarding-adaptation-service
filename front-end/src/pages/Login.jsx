@@ -5,11 +5,11 @@ import EyeOpened from './assets/password.svg';
 import EyeClosed from './assets/hidden-password.svg';
 import { useNavigate } from 'react-router-dom';
 
-function fetchUserData(username, password) {
+function fetchUserData(email, password) {
 	const payload = {
 		action: "auth_user",
 		auth: {
-			email: username,
+			email: email,
 			password: password,
 		}
 	}
@@ -30,16 +30,16 @@ function fetchUserData(username, password) {
 }
 
 function Login(props) {
-	const [username, setUsername] = useState('');
+	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
 	const navigate = useNavigate();
 	const handleLogin = () => {
 
-		fetchUserData(username, password)
+		fetchUserData(email, password)
 			.then(data => {
 				props.setIsLoggedIn(true);
-				props.setUsername(data.data.email);
+				props.setEmail(data.data.email);
 				localStorage.setItem('session_token', data.data.session_token);
 
 				navigate('/');
@@ -60,8 +60,8 @@ function Login(props) {
 				<div className="input-group">
 					<input
 						type="text"
-						value={username}
-						onChange={(e) => setUsername(e.target.value)}
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
 						placeholder="Введите Логин"
 						className="login"
 					/>

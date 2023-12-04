@@ -1,10 +1,20 @@
 // eslint-disable-next-line no-unused-vars
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import './Onboarding.css';
 import uncheckCircle from './assets/uncheck-circle.svg';
 import checkCircle from './assets/check-circle.svg';
+import {useNavigate} from "react-router-dom";
 
-function Onboarding() {
+function Onboarding(props) {
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		console.log(props.isLoggedIn)
+		if (!props.isLoggedIn) {
+			navigate('/login');
+		}
+	}, [props.isLoggedIn, navigate]);
+
 
 	const [statuses, setStatuses] = useState([
 		{ title: 'Компания', description: 'Test Company - это инновационная IT-компания, специализирующаяся на предоставлении решений в области информационных технологий. Мы предлагаем широкий спектр услуг, включая разработку программного обеспечения, веб-разработку, мобильные приложения, облачные решения, консалтинг и IT-аутсорсинг ' +
