@@ -12,6 +12,7 @@ import img4 from './assets/1Cthird.png';
 import img2 from './assets/1Cfouth.png'
 import img5 from './assets/sysadmin1.png'
 import {useNavigate} from "react-router-dom";
+import LoadSession from "../Auth/LoadSession";
 
 const slides = [
 	[
@@ -58,12 +59,19 @@ const slides = [
 
 function Adapting(props) {
 	const navigate = useNavigate();
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	const [email, setEmail] = useState('');
 
 	useEffect(() => {
 		if (!props.isLoggedIn) {
-			navigate('/login');
+			const sessionToken = localStorage.getItem("session_token");
+			if (sessionToken !== null) {
+				LoadSession(sessionToken, setIsLoggedIn, setEmail);
+			} else {
+				navigate('/login');
+			}
 		}
-	}, [props.isLoggedIn, navigate]);
+	}, [props.isLoggedIn, setIsLoggedIn, setEmail, navigate]);
 
 
 	const [currentSlide, setCurrentSlide] = useState(0);
@@ -87,6 +95,8 @@ function Adapting(props) {
 	};
 
 	return (
+		<>
+		{props.isLoggedIn || isLoggedIn ?
 		<div className="adapting-container">
 			<h2 style={{ color: '#FBFF33', fontWeight: 'bold' }}>Инструкция</h2>
 			<Slider {...sliderSettings}>
@@ -112,6 +122,8 @@ function Adapting(props) {
 				))}
 			</Slider>
 		</div>
+			: <></>}
+		</>
 	);
 }
 

@@ -4,17 +4,28 @@ import './Onboarding.css';
 import uncheckCircle from './assets/uncheck-circle.svg';
 import checkCircle from './assets/check-circle.svg';
 import {useNavigate} from "react-router-dom";
+import LoadSession from "../Auth/LoadSession";
 
 function Onboarding(props) {
 	const navigate = useNavigate();
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	const [email, setEmail] = useState('');
+
+	/*const handleNavigate = () => {
+		useEffect(() => {
+			navigate('/login');
+		}, []);*/
 
 	useEffect(() => {
-		console.log(props.isLoggedIn)
 		if (!props.isLoggedIn) {
-			navigate('/login');
+			const sessionToken = localStorage.getItem("session_token");
+			if (sessionToken !== null) {
+				LoadSession(sessionToken, setIsLoggedIn, setEmail);
+			} else {
+				navigate('/login');
+			}
 		}
-	}, [props.isLoggedIn, navigate]);
-
+	}, [props.isLoggedIn, setIsLoggedIn, setEmail, navigate]);
 
 	const [statuses, setStatuses] = useState([
 		{ title: 'Компания', description: 'Test Company - это инновационная IT-компания, специализирующаяся на предоставлении решений в области информационных технологий. Мы предлагаем широкий спектр услуг, включая разработку программного обеспечения, веб-разработку, мобильные приложения, облачные решения, консалтинг и IT-аутсорсинг ' +
@@ -66,6 +77,7 @@ function Onboarding(props) {
 
 	return (
 		<>
+			{props.isLoggedIn || isLoggedIn ?
 			<div className="onboarding">
 				<h2>Материал к ознакомлению:</h2>
 				{isAllRead ? (
@@ -87,6 +99,7 @@ function Onboarding(props) {
 					</div>
 				))}
 			</div>
+				: <></>}
 		</>
 	);
 }

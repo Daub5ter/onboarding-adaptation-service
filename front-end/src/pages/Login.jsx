@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import './Login.css';
 import EyeOpened from './assets/password.svg';
 import EyeClosed from './assets/hidden-password.svg';
