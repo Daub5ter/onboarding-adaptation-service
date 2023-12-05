@@ -1,4 +1,4 @@
-function fetchUserData(sessionToken) {
+function fetchUserData(sessionToken, setLoad) {
     let payloadSession = {
         action: "authenticate_user_session",
         session: {
@@ -19,6 +19,7 @@ function fetchUserData(sessionToken) {
             if (dataSession.error) {
                 localStorage.removeItem('session_token');
                 console.log("Session is not valid");
+                setLoad(true);
                 return dataSession;
             } else {
                 let payload = {
@@ -50,12 +51,13 @@ function fetchUserData(sessionToken) {
         .catch(error => console.error(error));
 }
 
-function LoadSession(sessionToken, setIsLoggedIn, setUsername) {
-    fetchUserData(sessionToken)
+function LoadSession(sessionToken, setLoad, setIsLoggedIn, setUsername) {
+    fetchUserData(sessionToken, setLoad)
         .then(data => {
             if (data.error !== true) {
                 setIsLoggedIn(true);
                 setUsername(data.data);
+                setLoad(true);
             }
         })
         .catch(error => {

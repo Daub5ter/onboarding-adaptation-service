@@ -59,20 +59,12 @@ const slides = [
 
 function Adapting(props) {
 	const navigate = useNavigate();
-	const [isLoggedIn, setIsLoggedIn] = useState(false);
-	const [email, setEmail] = useState('');
 
-	useEffect(() => {
-		if (!props.isLoggedIn) {
-			const sessionToken = localStorage.getItem("session_token");
-			if (sessionToken !== null) {
-				LoadSession(sessionToken, setIsLoggedIn, setEmail);
-			} else {
-				navigate('/login');
-			}
-		}
-	}, [props.isLoggedIn, setIsLoggedIn, setEmail, navigate]);
-
+	const handleNavigate = () => {
+		useEffect(() => {
+			navigate('/login');
+		}, []);
+	}
 
 	const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -95,8 +87,7 @@ function Adapting(props) {
 	};
 
 	return (
-		<>
-		{props.isLoggedIn || isLoggedIn ?
+		<> {props.isLoaded && props.isLoggedIn ?
 		<div className="adapting-container">
 			<h2 style={{ color: '#FBFF33', fontWeight: 'bold' }}>Инструкция</h2>
 			<Slider {...sliderSettings}>
@@ -122,7 +113,7 @@ function Adapting(props) {
 				))}
 			</Slider>
 		</div>
-			: <></>}
+			: handleNavigate()}
 		</>
 	);
 }
