@@ -29,6 +29,30 @@ function fetchUserKnowledge(id) {
 		.catch(error => console.error(error));
 }
 
+function fetchSolveKnowledge(userID, knowledgeID) {
+	const payload = {
+		action: "add_users_knowledge",
+		users_known: {
+			user_id: userID,
+			knowledge_id: knowledgeID,
+		}
+	}
+
+	const headers = new Headers();
+	headers.append("Content-Type", "application/json");
+
+	return fetch("http:\/\/localhost:8080/handle", {
+		method: 'POST',
+		body: JSON.stringify(payload),
+		headers: headers,
+	})
+		.then(response => response.json())
+		.then(data => {
+			return data;
+		})
+		.catch(error => console.error(error));
+}
+
 function Onboarding(props) {
 	const navigate = useNavigate();
 
@@ -102,10 +126,17 @@ function Onboarding(props) {
 
 		const toggleStatus = (index) => {
 			const newStatuses = [...statuses];
-			newStatuses[index].solved = !newStatuses[index].solved;
-			setStatuses(newStatuses);
 
-			// TODO new status of knowledge
+			fetchSolveKnowledge(props.id, newStatuses[index].id)
+				.then(data => {
+					if (data.error !== true) {
+						newStatuses[index].solved = true;
+						setStatuses(newStatuses);
+					}
+				})
+				.catch(error => {
+					console.error(error)
+				});
 
 			if (newStatuses[index].solved) {
 				setCounter((prevCounter) => prevCounter + 1);
