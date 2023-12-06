@@ -15,7 +15,7 @@ function App() {
     const [isLoaded, setLoad] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [email, setEmail] = useState('');
-    const [id, setID] = useState();
+    const [id, setID] = useState(0);
 
     useEffect(() => {
         const sessionToken = localStorage.getItem("session_token");

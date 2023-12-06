@@ -17,7 +17,7 @@ function fetchUserKnowledge(id) {
 	const headers = new Headers();
 	headers.append("Content-Type", "application/json");
 
-	return fetch("h}ttp:\/\/localhost:8080/handle", {
+	return fetch("http:\/\/localhost:8080/handle", {
 		method: 'POST',
 		body: JSON.stringify(payload),
 		headers: headers,
@@ -38,13 +38,25 @@ function Onboarding(props) {
 		}, []);
 	}
 
-		const [statuses, setStatuses] = useState([
+	const [statuses, setStatuses] = useState([])
+
+	fetchUserKnowledge(props.id)
+		.then(data => {
+			if (data.error !== true) {
+				setStatuses(data.data);
+			}
+		})
+		.catch(error => {
+			console.error(error)
+		});
+
+		/*const [statuses, setStatuses] = useState([
 			{
 				title: 'Компания',
 				description: 'Test Company - это инновационная IT-компания, специализирующаяся на предоставлении решений в области информационных технологий. Мы предлагаем широкий спектр услуг, включая разработку программного обеспечения, веб-разработку, мобильные приложения, облачные решения, консалтинг и IT-аутсорсинг ' +
 					'Мы стремимся помочь нашим клиентам достичь цифровой трансформации и повысить их эффективность, конкурентоспособность и инновационность. Наша команда высококвалифицированных специалистов имеет глубокие знания и опыт работы в различных отраслях, что позволяет нам создавать индивидуальные IT-решения, наиболее соответствующие потребностям каждого клиента. ' +
 					'Мы следим за последними технологическими тенденциями и интегрируем их в наши проекты, чтобы обеспечить передовые решения и удовлетворить ожидания наших клиентов. Мы ценим инновации, эффективность и качество во всем, что делаем.',
-				checked: false
+				solved: false
 			},
 			{
 				title: 'Отделы',
@@ -56,7 +68,7 @@ function Onboarding(props) {
 					'Отдел консалтинга предоставляет экспертные консультационные услуги по вопросам информационных технологий, стратегического планирования и цифровой трансформации.' +
 					'Отдел IT-аутсорсинга предоставляет услуги по полной или частичной передаче функций IT-управления и поддержки.' +
 					'Каждый отдел в Test Company  является частью нашей команды, работающей на достижение общих целей компании и удовлетворение потребностей наших клиентов.',
-				checked: false
+				solved: false
 			},
 			{
 				title: 'Дресс-код',
@@ -64,7 +76,7 @@ function Onboarding(props) {
 					'Бизнес-формальный:' +
 					'В рамках бизнес-формального дресс-кода ожидается профессиональный и официальный вид. Мужчины могут носить костюмы или брючные костюмы с рубашками и галстуками. Женщины могут выбирать между костюмами, платьями или юбками с блузками. Рекомендуется носить закрытую обувь и аккуратные аксессуары.' +
 					'Наша цель - создать профессиональную и уважительную атмосферу, поэтому мы рекомендуем сотрудникам следовать общим принципам дресс-кода и поддерживать нашу корпоративную имиджевую политику.',
-				checked: false
+				solved: false
 			},
 			{
 				title: 'Проекты',
@@ -82,25 +94,27 @@ function Onboarding(props) {
 					'Ответственный: Семен Святаш, руководитель отдела Blender-разработки.' +
 					'Описание проекта: Команда разработчиков на Blender занимается созданием 3D-моделей, анимаций и визуализаций.' +
 					'Каждый проект имеет своего ответственного руководителя, который отвечает за планирование, координацию и успешное выполнение проекта.',
-				checked: false
+				solved: false
 			}
-		]);
+		]);*/
 
 		const [counter, setCounter] = useState(0);
 
 		const toggleStatus = (index) => {
 			const newStatuses = [...statuses];
-			newStatuses[index].checked = !newStatuses[index].checked;
+			newStatuses[index].solved = !newStatuses[index].solved;
 			setStatuses(newStatuses);
 
-			if (newStatuses[index].checked) {
+			// TODO new status of knowledge
+
+			if (newStatuses[index].solved) {
 				setCounter((prevCounter) => prevCounter + 1);
 			} else {
 				setCounter((prevCounter) => prevCounter - 1);
 			}
 		};
 
-		const isAllRead = statuses.every(item => item.checked);
+		const isAllRead = statuses.every(item => item.solved);
 
 	return (
 			<> {props.isLoaded && props.isLoggedIn ?
@@ -118,7 +132,7 @@ function Onboarding(props) {
 									<p>{item.description}</p>
 								</div>
 								<img
-									src={item.checked ? checkCircle : uncheckCircle}
+									src={item.solved ? checkCircle : uncheckCircle}
 									alt="Стрелка"
 									onClick={() => toggleStatus(index)}
 								/>
