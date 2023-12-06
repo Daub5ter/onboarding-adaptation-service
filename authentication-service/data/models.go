@@ -52,6 +52,7 @@ type User struct {
 type UserJWT struct {
 	jwt.RegisteredClaims
 	Email string `json:"email"`
+	ID    int    `json:"id"`
 }
 
 // GetAll returns a slice of all users, sorted by last name
@@ -304,7 +305,7 @@ func (u *User) PasswordMatches(plainText string) (bool, error) {
 }
 
 // CreateJWTToken creates jwt token for user
-func (uJWT *UserJWT) CreateJWTToken(email string) (string, error) {
+func (uJWT *UserJWT) CreateJWTToken(email string, id int) (string, error) {
 	exp := time.Now().Add(1 * time.Minute)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, UserJWT{
@@ -312,6 +313,7 @@ func (uJWT *UserJWT) CreateJWTToken(email string) (string, error) {
 			ExpiresAt: jwt.NewNumericDate(exp),
 		},
 		Email: email,
+		ID:    id,
 	})
 
 	signedString, err := token.SignedString([]byte(key))
@@ -324,19 +326,19 @@ func (uJWT *UserJWT) CreateJWTToken(email string) (string, error) {
 }
 
 // CheckJWTToken checks valid token or not
-func (uJWT *UserJWT) CheckJWTToken(jwtToken string) (string, error) {
+func (uJWT *UserJWT) CheckJWTToken(jwtToken string) (*UserJWT, error) {
 	var userClaim UserJWT
 
 	token, err := jwt.ParseWithClaims(jwtToken, &userClaim, func(token *jwt.Token) (interface{}, error) {
 		return []byte(key), nil
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if !token.Valid {
-		return "", errors.New("invalid token")
+		return nil, errors.New("invalid token")
 	}
 
-	return userClaim.Email, nil
+	return &userClaim, nil
 }

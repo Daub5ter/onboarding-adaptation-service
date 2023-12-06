@@ -25,7 +25,7 @@ function fetchUserData(sessionToken, setLoad) {
                 let payload = {
                     action: "get_user_by_email",
                     email: {
-                        email: dataSession.data,
+                        email: dataSession.data.email,
                     }
                 }
 
@@ -51,12 +51,13 @@ function fetchUserData(sessionToken, setLoad) {
         .catch(error => console.error(error));
 }
 
-function LoadSession(sessionToken, setLoad, setIsLoggedIn, setUsername) {
+function LoadSession(sessionToken, setLoad, setIsLoggedIn, setEmail, setID) {
     fetchUserData(sessionToken, setLoad)
         .then(data => {
             if (data.error !== true) {
                 setIsLoggedIn(true);
-                setUsername(data.data);
+                setEmail(data.data.email);
+                setID(data.data.id);
                 setLoad(true);
             }
         })

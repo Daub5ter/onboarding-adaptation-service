@@ -137,7 +137,7 @@ func (app *Config) Authenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jwtToken, err := app.Models.UserJWT.CreateJWTToken(requestPayload.Email)
+	jwtToken, err := app.Models.UserJWT.CreateJWTToken(user.Email, user.ID)
 	if err != nil {
 		app.errorJSON(w, err, http.StatusBadRequest)
 		return
@@ -184,7 +184,7 @@ func (app *Config) AuthenticateSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	email, err := app.Models.UserJWT.CheckJWTToken(requestPayload.SessionToken)
+	user, err := app.Models.UserJWT.CheckJWTToken(requestPayload.SessionToken)
 	if err != nil {
 		app.errorJSON(w, err, http.StatusBadRequest)
 		return
@@ -193,7 +193,7 @@ func (app *Config) AuthenticateSession(w http.ResponseWriter, r *http.Request) {
 	payload := jsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("session is valid"),
-		Data:    email,
+		Data:    user,
 	}
 
 	app.writeJSON(w, http.StatusOK, payload)

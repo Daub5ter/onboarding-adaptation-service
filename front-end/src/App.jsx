@@ -15,11 +15,12 @@ function App() {
     const [isLoaded, setLoad] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [email, setEmail] = useState('');
+    const [id, setID] = useState();
 
     useEffect(() => {
         const sessionToken = localStorage.getItem("session_token");
         if (sessionToken !== null) {
-            LoadSession(sessionToken, setLoad, setIsLoggedIn, setEmail);
+            LoadSession(sessionToken, setLoad, setIsLoggedIn, setEmail, setID);
         } else {
             setLoad(true);
         }
@@ -33,9 +34,9 @@ function App() {
                     <Header isLoggedIn={isLoggedIn} email={email} />
                     <Routes>
                         <Route path="/" element={<Home />} />
-                        <Route path="/onboarding" element={<Onboarding isLoggedIn={isLoggedIn} email={email} isLoaded={isLoaded}/>} />
-                        <Route path="/adaptation" element={<Adapting isLoggedIn={isLoggedIn} email={email} isLoaded={isLoaded}/>} />
-                        <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setEmail={setEmail} />} />
+                        <Route path="/onboarding" element={<Onboarding isLoggedIn={isLoggedIn} email={email} id={id} isLoaded={isLoaded}/>} />
+                        <Route path="/adaptation" element={<Adapting isLoggedIn={isLoggedIn} email={email} id={id} isLoaded={isLoaded}/>} />
+                        <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setEmail={setEmail} setID={setID}/>} />
                     </Routes>
                     <Footer />
                 </div>

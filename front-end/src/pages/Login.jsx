@@ -40,6 +40,7 @@ function Login(props) {
 			.then(data => {
 				props.setIsLoggedIn(true);
 				props.setEmail(data.data.email);
+				props.setID(data.data.id);
 				localStorage.setItem('session_token', data.data.session_token);
 
 				navigate('/');

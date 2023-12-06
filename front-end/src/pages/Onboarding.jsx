@@ -6,6 +6,29 @@ import checkCircle from './assets/check-circle.svg';
 import {useNavigate} from "react-router-dom";
 import LoadSession from "../Auth/LoadSession";
 
+function fetchUserKnowledge(id) {
+	const payload = {
+		action: "get_all_knowledge",
+		id: {
+			id: id,
+		}
+	}
+
+	const headers = new Headers();
+	headers.append("Content-Type", "application/json");
+
+	return fetch("h}ttp:\/\/localhost:8080/handle", {
+		method: 'POST',
+		body: JSON.stringify(payload),
+		headers: headers,
+	})
+		.then(response => response.json())
+		.then(data => {
+			return data;
+		})
+		.catch(error => console.error(error));
+}
+
 function Onboarding(props) {
 	const navigate = useNavigate();
 
