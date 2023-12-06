@@ -148,7 +148,7 @@ func (uk *UsersKnowledges) Insert(usersKnowledges UsersKnowledges) (time.Time, e
 func (uk *UsersKnowledges) GetPercent(id int) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-	//TODO
+
 	var countUK int
 	query := `select count(*) from users_knowledges where user_id = $1`
 	row := db.QueryRowContext(ctx, query, id)

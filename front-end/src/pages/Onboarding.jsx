@@ -53,6 +53,29 @@ function fetchSolveKnowledge(userID, knowledgeID) {
 		.catch(error => console.error(error));
 }
 
+function fetchUserPercent(id) {
+	const payload = {
+		action: "get_percent_knowledge",
+		id: {
+			id: id,
+		}
+	}
+
+	const headers = new Headers();
+	headers.append("Content-Type", "application/json");
+
+	return fetch("http:\/\/localhost:8080/handle", {
+		method: 'POST',
+		body: JSON.stringify(payload),
+		headers: headers,
+	})
+		.then(response => response.json())
+		.then(data => {
+			return data;
+		})
+		.catch(error => console.error(error));
+}
+
 function Onboarding(props) {
 	const navigate = useNavigate();
 
@@ -73,6 +96,7 @@ function Onboarding(props) {
 		.catch(error => {
 			console.error(error)
 		});
+
 
 		/*const [statuses, setStatuses] = useState([
 			{
@@ -122,39 +146,53 @@ function Onboarding(props) {
 			}
 		]);*/
 
-		const [counter, setCounter] = useState(0);
+	const [percent, setPercent] = useState(0);
 
-		const toggleStatus = (index) => {
-			const newStatuses = [...statuses];
-
-			fetchSolveKnowledge(props.id, newStatuses[index].id)
-				.then(data => {
-					if (data.error !== true) {
-						newStatuses[index].solved = true;
-						setStatuses(newStatuses);
-					}
-				})
-				.catch(error => {
-					console.error(error)
-				});
-
-			if (newStatuses[index].solved) {
-				setCounter((prevCounter) => prevCounter + 1);
-			} else {
-				setCounter((prevCounter) => prevCounter - 1);
+	fetchUserPercent(props.id)
+		.then(data => {
+			if (data.error !== true) {
+				setPercent(data.data);
 			}
-		};
+		})
+		.catch(error => {
+			console.error(error)
+		});
 
-		const isAllRead = statuses.every(item => item.solved);
+	const toggleStatus = (index) => {
+		const newStatuses = [...statuses];
+
+		fetchSolveKnowledge(props.id, newStatuses[index].id)
+			.then(dataSolve => {
+				if (dataSolve.error !== true) {
+					newStatuses[index].solved = true;
+					setStatuses(newStatuses);
+
+					fetchUserPercent(props.id)
+						.then(data => {
+							if (data.error !== true) {
+								setPercent(data.data);
+							}
+						})
+						.catch(error => {
+							console.error(error)
+						});
+				}
+			})
+			.catch(error => {
+				console.error(error)
+			});
+	};
+
+	const isAllRead = statuses.every(item => item.solved);
 
 	return (
 			<> {props.isLoaded && props.isLoggedIn ?
 					<div className="onboarding">
 						<h2>Материал к ознакомлению:</h2>
 						{isAllRead ? (
-							<p className="onboarding-counter">Вы ознакомились со всеми пунктами! </p>
+							<p className="onboarding-percent">Вы ознакомились со всеми пунктами! </p>
 						) : (
-							<p className="onboarding-counter">Количество пунктов, с которыми вы ознакомились: {counter} </p>
+							<p className="onboarding-percent">Процент пунктов, с которыми вы ознакомились: {percent}% </p>
 						)}
 						{statuses.map((item, index) => (
 							<div className="onboarding-container" key={index}>
