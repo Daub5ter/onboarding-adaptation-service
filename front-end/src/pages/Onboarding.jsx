@@ -87,16 +87,17 @@ function Onboarding(props) {
 
 	const [statuses, setStatuses] = useState([])
 
-	fetchUserKnowledge(props.id)
-		.then(data => {
-			if (data.error !== true) {
-				setStatuses(data.data);
-			}
-		})
-		.catch(error => {
-			console.error(error)
-		});
-
+	if (statuses.length === 0) {
+		fetchUserKnowledge(props.id)
+			.then(data => {
+				if (data.error !== true) {
+					setStatuses(data.data);
+				}
+			})
+			.catch(error => {
+				console.error(error)
+			});
+	}
 
 		/*const [statuses, setStatuses] = useState([
 			{
@@ -147,16 +148,20 @@ function Onboarding(props) {
 		]);*/
 
 	const [percent, setPercent] = useState(0);
+	const [isPercentGot, getPercent] = useState(false);
 
-	fetchUserPercent(props.id)
-		.then(data => {
-			if (data.error !== true) {
-				setPercent(data.data);
-			}
-		})
-		.catch(error => {
-			console.error(error)
-		});
+	if (!isPercentGot) {
+		fetchUserPercent(props.id)
+			.then(data => {
+				if (data.error !== true) {
+					setPercent(data.data);
+					getPercent(true);
+				}
+			})
+			.catch(error => {
+				console.error(error)
+			});
+	}
 
 	const toggleStatus = (index) => {
 		const newStatuses = [...statuses];

@@ -1,9 +1,11 @@
 package main
 
 import (
+	"broker/event"
 	"bytes"
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 )
 
@@ -88,15 +90,15 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 
 	switch requestPayload.Action {
 	case "auth_user":
-		app.authenticateUser(w, requestPayload.Auth)
+		app.authenticateUserViaRabbit(w, requestPayload.Auth)
 	case "authenticate_user_session":
-		app.authenticateUserSession(w, requestPayload.Session)
+		app.authenticateUserSessionViaRabbit(w, requestPayload.Session)
 	case "reg_user":
 		app.registrateUser(w, requestPayload.Reg)
 	case "get_all_user":
 		app.getAllUser(w)
 	case "get_user_by_email":
-		app.getByEmailUser(w, requestPayload.Email)
+		app.getUserByEmailViaRabbit(w, requestPayload.Email)
 	case "get_user_by_id":
 		app.getByIDUser(w, requestPayload.ID)
 	case "get_all_knowledge":
@@ -1043,4 +1045,113 @@ func (app *Config) sendMail(w http.ResponseWriter, msg MailPayload) {
 	payload.Message = "Message sent to " + msg.To
 
 	app.writeJSON(w, http.StatusAccepted, payload)
+}
+
+// authenticateUserViaRabbit auths user with email and password via RabbitMQ
+func (app *Config) authenticateUserViaRabbit(w http.ResponseWriter, a AuthUserPayload) {
+	var requestPayload RequestPayload
+
+	requestPayload.Action = "auth_user"
+	requestPayload.Auth = a
+
+	response, err := app.pushToQueue(requestPayload)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	var payload jsonResponse
+
+	err = json.Unmarshal(response, &payload)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	app.writeJSON(w, http.StatusOK, payload)
+}
+
+// authenticateUserSessionViaRabbit auths user if session is valid via RabbitMQ
+func (app *Config) authenticateUserSessionViaRabbit(w http.ResponseWriter, st SessionTokenPayload) {
+	var requestPayload RequestPayload
+
+	requestPayload.Action = "authenticate_user_session"
+	requestPayload.Session = st
+
+	response, err := app.pushToQueue(requestPayload)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	var payload jsonResponse
+
+	err = json.Unmarshal(response, &payload)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	app.writeJSON(w, http.StatusOK, payload)
+}
+
+// getUserByEmailViaRabbit returns user by email via RabbitMQ
+func (app *Config) getUserByEmailViaRabbit(w http.ResponseWriter, e EmailPayload) {
+	var requestPayload RequestPayload
+
+	requestPayload.Action = "get_user_by_email"
+	requestPayload.Email = e
+
+	response, err := app.pushToQueue(requestPayload)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	var payload jsonResponse
+
+	err = json.Unmarshal(response, &payload)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	app.writeJSON(w, http.StatusOK, payload)
+}
+
+// pushToQueue pushes request to queue of RabbitMQ
+func (app *Config) pushToQueue(payload RequestPayload) ([]byte, error) {
+	var response []byte
+
+	emitter, err := event.NewEventEmitter(payload.Action, app.Rabbit)
+	if err != nil {
+		return nil, err
+	}
+
+	var j []byte
+
+	j, _ = json.MarshalIndent(&payload, "", "\t")
+
+	switch payload.Action {
+	case "auth_user":
+		response, err = emitter.PushWithResponse(string(j), payload.Action, "auth.user")
+	case "get_user_by_email":
+		response, err = emitter.PushWithResponse(string(j), payload.Action, "get.user.by.email")
+	case "authenticate_user_session":
+		response, err = emitter.PushWithResponse(string(j), payload.Action, "authenticate.user.session")
+	case "get_all_knowledge":
+		response, err = emitter.PushWithResponse(string(j), payload.Action, "get.all.knowledge")
+	case "add_users_knowledge":
+		response, err = emitter.PushWithResponse(string(j), payload.Action, "add.users.knowledge")
+	case "get_percent_knowledge":
+		response, err = emitter.PushWithResponse(string(j), payload.Action, "get.percent.knowledge")
+	default:
+		log.Printf("invalid name of channel RabbitMQ %s", payload.Action)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return response, err
 }

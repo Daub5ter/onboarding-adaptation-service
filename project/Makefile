@@ -3,6 +3,7 @@ BROKER_BINARY=brokerApp
 AUTH_BINARY=authApp
 ONBOARDING_BINARY=onboardingApp
 ADAPTATION_BINARY=adaptationApp
+LISTENER_BINARY=listenerApp
 MAIL_BINARY=mailerApp
 
 ## up: starts all containers in the background without forcing build
@@ -12,7 +13,7 @@ up:
 	@echo "Docker images started!"
 
 ## up_build: stops docker-compose (if running), builds all projects and starts docker compose
-up_build: build_broker build_auth build_onboarding build_adaptation build_mail
+up_build: build_broker build_auth build_onboarding build_adaptation build_listener build_mail
 	@echo "Stopping docker images (if running...)"
 	docker compose down
 	@echo "Building (when required) and starting docker images..."
@@ -41,6 +42,12 @@ build_onboarding:
 build_adaptation:
 	@echo "Building logger binary..."
 	cd ../adaptation-service && env GOOS=linux CGO_ENABLED=0 go build -o ${ADAPTATION_BINARY} ./cmd/api
+	@echo "Done!"
+
+## build_listener: builds the listener binary as a linux executable
+build_listener:
+	@echo "Building logger binary..."
+	cd ../listener-service && env GOOS=linux CGO_ENABLED=0 go build -o ${LISTENER_BINARY} .
 	@echo "Done!"
 
 ## build_auth: builds the auth binary as a linux executable
