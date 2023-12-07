@@ -1119,7 +1119,77 @@ func (app *Config) getUserByEmailViaRabbit(w http.ResponseWriter, e EmailPayload
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
-func (app *Config) getAllKnowledgeViaRabbit(w http.ResponseWriter, i IDPayload) {}
+// getAllKnowledgeViaRabbit return user`s solved and unsolved knowledge via RabbitMQ
+func (app *Config) getAllKnowledgeViaRabbit(w http.ResponseWriter, i IDPayload) {
+	var requestPayload RequestPayload
+
+	requestPayload.Action = "get_all_knowledge"
+	requestPayload.ID = i
+
+	response, err := app.pushToQueue(requestPayload)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	var payload jsonResponse
+
+	err = json.Unmarshal(response, &payload)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	app.writeJSON(w, http.StatusOK, payload)
+}
+
+// addUsersKnowledgeViaRabbit add the new users solved knowledge via RabbiMQ
+func (app *Config) addUsersKnowledgeViaRabbit(w http.ResponseWriter, uk UsersKnowledgesPayload) {
+	var requestPayload RequestPayload
+
+	requestPayload.Action = "add_users_knowledge"
+	requestPayload.UsersKnown = uk
+
+	response, err := app.pushToQueue(requestPayload)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	var payload jsonResponse
+
+	err = json.Unmarshal(response, &payload)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	app.writeJSON(w, http.StatusCreated, payload)
+}
+
+// getPercentKnowledgeViaRabbit return percent of solved knowledge via RabbiMQ
+func (app *Config) getPercentKnowledgeViaRabbit(w http.ResponseWriter, i IDPayload) {
+	var requestPayload RequestPayload
+
+	requestPayload.Action = "get_percent_knowledge"
+	requestPayload.ID = i
+
+	response, err := app.pushToQueue(requestPayload)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	var payload jsonResponse
+
+	err = json.Unmarshal(response, &payload)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	app.writeJSON(w, http.StatusOK, payload)
+}
 
 // pushToQueue pushes request to queue of RabbitMQ
 func (app *Config) pushToQueue(payload RequestPayload) ([]byte, error) {

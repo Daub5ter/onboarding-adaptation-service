@@ -215,6 +215,27 @@ func handlePayload(payload Payload) jsonResponse {
 		}
 		response = resp
 
+	case "get_all_knowledge":
+		resp, err := getAllKnowledge(payload)
+		if err != nil {
+			log.Println(err)
+		}
+		response = resp
+
+	case "add_users_knowledge":
+		resp, err := addUsersKnowledge(payload)
+		if err != nil {
+			log.Println(err)
+		}
+		response = resp
+
+	case "get_percent_knowledge":
+		resp, err := getPercentKnowledge(payload)
+		if err != nil {
+			log.Println(err)
+		}
+		response = resp
+
 	default:
 		errString := fmt.Sprintf("invalid name of function %s, RabbitMQ", payload.Action)
 		log.Println(errString)
@@ -267,6 +288,57 @@ func getUserByEmail(entry Payload) (jsonResponse, error) {
 
 	// call the service
 	request, err := http.NewRequest("POST", "http://authentication-service/get_by_email", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return jsonResponse{Error: true, Message: fmt.Sprintf("error %v", err)}, err
+	}
+
+	return handleSync(request, http.StatusOK)
+}
+
+// getAllKnowledge return user`s solved and unsolved knowledge via RabbitMQ
+func getAllKnowledge(entry Payload) (jsonResponse, error) {
+	// create some json we'll send to the auth microservice
+	jsonData, err := json.MarshalIndent(entry.ID, "", "\t")
+	if err != nil {
+		return jsonResponse{Error: true, Message: fmt.Sprintf("error %v", err)}, err
+	}
+
+	// call the service
+	request, err := http.NewRequest("POST", "http://onboarding-service/get_all", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return jsonResponse{Error: true, Message: fmt.Sprintf("error %v", err)}, err
+	}
+
+	return handleSync(request, http.StatusOK)
+}
+
+// addUsersKnowledge add the new users solved knowledge via RabbiMQ
+func addUsersKnowledge(entry Payload) (jsonResponse, error) {
+	// create some json we'll send to the auth microservice
+	jsonData, err := json.MarshalIndent(entry.UsersKnown, "", "\t")
+	if err != nil {
+		return jsonResponse{Error: true, Message: fmt.Sprintf("error %v", err)}, err
+	}
+
+	// call the service
+	request, err := http.NewRequest("POST", "http://onboarding-service/add_users_known", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return jsonResponse{Error: true, Message: fmt.Sprintf("error %v", err)}, err
+	}
+
+	return handleSync(request, http.StatusCreated)
+}
+
+// getPercentKnowledge return percent of solved knowledge via RabbiMQ
+func getPercentKnowledge(entry Payload) (jsonResponse, error) {
+	// create some json we'll send to the auth microservice
+	jsonData, err := json.MarshalIndent(entry.ID, "", "\t")
+	if err != nil {
+		return jsonResponse{Error: true, Message: fmt.Sprintf("error %v", err)}, err
+	}
+
+	// call the service
+	request, err := http.NewRequest("POST", "http://onboarding-service/get_percent", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return jsonResponse{Error: true, Message: fmt.Sprintf("error %v", err)}, err
 	}
