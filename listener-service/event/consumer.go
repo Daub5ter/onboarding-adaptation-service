@@ -23,21 +23,20 @@ type jsonResponse struct {
 	Data    any    `json:"data,omitempty"`
 }
 
-// Payload is basic structure to indicate action and data`s structure
 type Payload struct {
-	Action         string                `json:"action"`
-	Auth           AuthUserPayload       `json:"auth,omitempty"`
-	Session        SessionTokenPayload   `json:"session,omitempty"`
-	Reg            RegUserPayload        `json:"reg,omitempty"`
-	UpdateUser     UpdateUserPayload     `json:"update_user,omitempty"`
-	ChangePassword ChangePasswordPayload `json:"change_password,omitempty"`
-	Email          EmailPayload          `json:"email,omitempty"`
-	ID             IDPayload             `json:"id,omitempty"`
-	Log            LogPayload            `json:"log,omitempty"`
-	Mail           MailPayload           `json:"mail,omitempty"`
+	Action            string                   `json:"action"`
+	Auth              AuthUserPayload          `json:"auth,omitempty"`
+	Session           SessionTokenPayload      `json:"session,omitempty"`
+	Reg               RegUserPayload           `json:"reg,omitempty"`
+	Email             EmailPayload             `json:"email,omitempty"`
+	ID                IDPayload                `json:"id,omitempty"`
+	Known             KnowledgePayload         `json:"known,omitempty"`
+	UsersKnown        UsersKnowledgesPayload   `json:"users_known,omitempty"`
+	Instruction       InstructionPayload       `json:"instruction,omitempty"`
+	UsersInstructions UsersInstructionsPayload `json:"users_instructions,omitempty"`
+	Mail              MailPayload              `json:"mail,omitempty"`
 }
 
-// MailPayload stores data to send mail to user
 type MailPayload struct {
 	From    string `json:"from"`
 	To      string `json:"to"`
@@ -45,56 +44,51 @@ type MailPayload struct {
 	Message string `json:"message"`
 }
 
-// AuthUserPayload stores data to authenticate user
 type AuthUserPayload struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-// RegUserPayload stores data to registration user
+// SessionTokenPayload stores token of user`s session
+type SessionTokenPayload struct {
+	SessionToken string `json:"session_token"`
+}
+
 type RegUserPayload struct {
-	Email     string `json:"email"`
-	FirstName string `json:"first_name,omitempty"`
-	LastName  string `json:"last_name,omitempty"`
-	Password  string `json:"password"`
-	Active    int    `json:"active"`
+	Email      string `json:"email"`
+	FirstName  string `json:"first_name,omitempty"`
+	LastName   string `json:"last_name,omitempty"`
+	Password   string `json:"password"`
+	Profession string `json:"profession"`
 }
 
-// UpdateUserPayload stores data to update user
-type UpdateUserPayload struct {
-	Email       string `json:"email"`
-	EmailChange string `json:"email_change"`
-	FirstName   string `json:"first_name,omitempty,omitempty"`
-	LastName    string `json:"last_name,omitempty,omitempty"`
-	Active      int    `json:"active,omitempty"`
-}
-
-// ChangePasswordPayload stores data to change password
-type ChangePasswordPayload struct {
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	NewPassword string `json:"new_password"`
-}
-
-// EmailPayload stores data of email
 type EmailPayload struct {
 	Email string `json:"email"`
 }
 
-// IDPayload stores id data
 type IDPayload struct {
 	ID int `json:"id"`
 }
 
-// LogPayload stores log data
-type LogPayload struct {
-	Name string `json:"name"`
-	Data string `json:"data"`
+type KnowledgePayload struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }
 
-// SessionTokenPayload stores token of user`s session
-type SessionTokenPayload struct {
-	SessionToken string `json:"session_token"`
+type InstructionPayload struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Path        string `json:"path"`
+}
+
+type UsersKnowledgesPayload struct {
+	UserID      int `json:"user_id"`
+	KnowledgeID int `json:"knowledge_id"`
+}
+
+type UsersInstructionsPayload struct {
+	UserID        int `json:"user_id"`
+	InstructionID int `json:"instruction_id"`
 }
 
 func NewConsumer(conn *amqp.Connection) (Consumer, error) {

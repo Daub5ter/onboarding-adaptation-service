@@ -4,7 +4,6 @@ import (
 	"authentication/data"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 )
@@ -73,8 +72,6 @@ func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
 		return
 	}
-
-	log.Println("users", users)
 
 	payload := jsonResponse{
 		Error:   false,
@@ -169,7 +166,7 @@ func (app *Config) Authenticate(w http.ResponseWriter, r *http.Request) {
 		Data:    u,
 	}
 
-	app.writeJSON(w, http.StatusAccepted, payload)
+	app.writeJSON(w, http.StatusOK, payload)
 }
 
 // AuthenticateSession checks valid or not session of user
