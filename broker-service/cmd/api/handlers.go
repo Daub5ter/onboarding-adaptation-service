@@ -102,13 +102,13 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 	case "get_user_by_id":
 		app.getByIDUser(w, requestPayload.ID)
 	case "get_all_knowledge":
-		app.getAllKnowledge(w, requestPayload.ID)
+		app.getAllKnowledgeViaRabbit(w, requestPayload.ID)
 	case "get_percent_knowledge":
-		app.getPercentKnowledge(w, requestPayload.ID)
+		app.getPercentKnowledgeViaRabbit(w, requestPayload.ID)
 	case "add_knowledge":
 		app.addKnowledge(w, requestPayload.Known)
 	case "add_users_knowledge":
-		app.addUsersKnowledge(w, requestPayload.UsersKnown)
+		app.addUsersKnowledgeViaRabbit(w, requestPayload.UsersKnown)
 	case "get_instruction":
 		app.getInstruction(w, requestPayload.ID)
 	case "get_all_instructions":
