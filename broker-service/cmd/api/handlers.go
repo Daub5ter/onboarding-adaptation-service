@@ -1119,6 +1119,8 @@ func (app *Config) getUserByEmailViaRabbit(w http.ResponseWriter, e EmailPayload
 	app.writeJSON(w, http.StatusOK, payload)
 }
 
+func (app *Config) getAllKnowledgeViaRabbit(w http.ResponseWriter, i IDPayload) {}
+
 // pushToQueue pushes request to queue of RabbitMQ
 func (app *Config) pushToQueue(payload RequestPayload) ([]byte, error) {
 	var response []byte
