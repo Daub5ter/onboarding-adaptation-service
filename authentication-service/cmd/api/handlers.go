@@ -30,6 +30,9 @@ func (app *Config) GetByEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// log GetByEmail
+	go app.logRequest("get user by email", fmt.Sprintf("got %s", user.Email))
+
 	payload := jsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("recived user"),
@@ -57,6 +60,9 @@ func (app *Config) GetByID(w http.ResponseWriter, r *http.Request) {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
 		return
 	}
+
+	// log GetByID
+	go app.logRequest("get user by id", fmt.Sprintf("got %s", user.Email))
 
 	payload := jsonResponse{
 		Error:   false,

@@ -18,6 +18,9 @@ func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// log GetAll
+	go app.logRequest("get all instructions", fmt.Sprintf("got %v instructions", len(instructions)))
+
 	payload := JsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("Received %v instructions", len(instructions)),
@@ -90,6 +93,9 @@ func (app *Config) GetUsersInstructions(w http.ResponseWriter, r *http.Request) 
 		response = append(response, &resp)
 	}
 
+	// log GetUsersInstructions
+	go app.logRequest("get user instructions", fmt.Sprintf("got %v instructions", len(response)))
+
 	payload := JsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("received all instructions"),
@@ -117,6 +123,9 @@ func (app *Config) GetInstructionByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// log GetInstructionByID
+	go app.logRequest("get instruction by id", fmt.Sprintf("got %s", instruction.Title))
+
 	payload := JsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("received instruction"),
@@ -142,9 +151,12 @@ func (app *Config) AddInstruction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// log AddInstruction
+	go app.logRequest("add instruction", fmt.Sprintf("%s added", requestPayload.Title))
+
 	payload := JsonResponse{
 		Error:   false,
-		Message: fmt.Sprintf("Created instruction with id %s", id),
+		Message: fmt.Sprintf("Created instruction with id %v", id),
 		Data:    id,
 	}
 
@@ -166,6 +178,9 @@ func (app *Config) AddUsersInstruction(w http.ResponseWriter, r *http.Request) {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
 		return
 	}
+
+	// log AddUsersInstruction
+	go app.logRequest("add users instruction", fmt.Sprintf("added users with id %v instruction with id %v", userID, requestPayload.InstructionID))
 
 	payload := JsonResponse{
 		Error: false,
@@ -199,9 +214,12 @@ func (app *Config) SolveInstruction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// log SolveInstruction
+	go app.logRequest("solve instruction", fmt.Sprintf("solved instruction %s", instruction.Title))
+
 	payload := JsonResponse{
 		Error:   false,
-		Message: fmt.Sprintf("Solved instruction with id %s", instruction.ID),
+		Message: fmt.Sprintf("Solved instruction with id %v", instruction.ID),
 		Data:    requestPayload.UserID,
 	}
 
@@ -224,6 +242,9 @@ func (app *Config) GetPercent(w http.ResponseWriter, r *http.Request) {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
 		return
 	}
+
+	// log GetPercent
+	go app.logRequest("get percent instruction", fmt.Sprintf("got percent %v", percent))
 
 	payload := JsonResponse{
 		Error:   false,
