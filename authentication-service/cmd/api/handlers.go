@@ -2,8 +2,11 @@ package main
 
 import (
 	"authentication/data"
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 )
@@ -194,4 +197,29 @@ func (app *Config) AuthenticateSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.writeJSON(w, http.StatusOK, payload)
+}
+
+// logRequest requests of logger-service to log event
+func (app *Config) logRequest(name, data string) {
+	var entry struct {
+		Name string `json:"name"`
+		Data string `json:"data"`
+	}
+
+	entry.Name = name
+	entry.Data = data
+
+	jsonData, _ := json.MarshalIndent(entry, "", "\t")
+	logServiceURL := "http://logger-service/log"
+
+	request, err := http.NewRequest("POST", logServiceURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Println(err)
+	}
+
+	client := &http.Client{}
+	_, err = client.Do(request)
+	if err != nil {
+		log.Println(err)
+	}
 }
