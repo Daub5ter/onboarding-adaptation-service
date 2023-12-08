@@ -76,6 +76,9 @@ func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// log GetAll
+	go app.logRequest("get all users", fmt.Sprintf("got %v users", len(users)))
+
 	payload := jsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("Received %v users", len(users)),
@@ -101,6 +104,9 @@ func (app *Config) Registrate(w http.ResponseWriter, r *http.Request) {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
 		return
 	}
+
+	// log Registrate
+	go app.logRequest("registration user", fmt.Sprintf("%s registreted", requestPayload.Email))
 
 	payload := jsonResponse{
 		Error:   false,
@@ -163,6 +169,9 @@ func (app *Config) Authenticate(w http.ResponseWriter, r *http.Request) {
 	u.UpdatedAt = user.UpdatedAt
 	u.SessionToken = jwtToken
 
+	// log Authenticate
+	go app.logRequest("authenticate user", fmt.Sprintf("%s authenticated", requestPayload.Email))
+
 	payload := jsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("Logged in user %s", user.Email),
@@ -189,6 +198,9 @@ func (app *Config) AuthenticateSession(w http.ResponseWriter, r *http.Request) {
 		app.errorJSON(w, err, http.StatusBadRequest)
 		return
 	}
+
+	// log AuthenticateSession
+	go app.logRequest("authenticate user session", fmt.Sprintf("%s authenticated", user.Email))
 
 	payload := jsonResponse{
 		Error:   false,
