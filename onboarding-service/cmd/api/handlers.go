@@ -28,6 +28,9 @@ func (app *Config) GetKnownByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// log GetKnownByID
+	go app.logRequest("get knowledge by id", fmt.Sprintf("got knowledge %s", knowledge.Title))
+
 	payload := JsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("received knowledge"),
@@ -53,6 +56,9 @@ func (app *Config) AddKnown(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// log AddKnown
+	go app.logRequest("add knowledge", fmt.Sprintf("got knowledge with id %v", id))
+
 	payload := JsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("Created knowledge with id %s", id),
@@ -77,6 +83,9 @@ func (app *Config) AddUsersKnown(w http.ResponseWriter, r *http.Request) {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
 		return
 	}
+
+	// log AddUsersKnown
+	go app.logRequest("add users knowledge", fmt.Sprintf("user with id %v added knowledge with id %v", requestPayload.UserID, requestPayload.KnowledgeID))
 
 	payload := JsonResponse{
 		Error: false,
@@ -105,6 +114,9 @@ func (app *Config) GetPercentKnown(w http.ResponseWriter, r *http.Request) {
 		app.errorJSON(w, errors.New("invalid credentials"), http.StatusBadRequest)
 		return
 	}
+
+	// log GetPercentKnown
+	go app.logRequest("get percent knowledge", fmt.Sprintf("got percent %v", percent))
 
 	payload := JsonResponse{
 		Error:   false,
@@ -177,6 +189,9 @@ func (app *Config) GetAll(w http.ResponseWriter, r *http.Request) {
 
 		response = append(response, &resp)
 	}
+
+	// log GetPercentKnown
+	go app.logRequest("get all knowledge", fmt.Sprintf("got %v knowledges", len(response)))
 
 	payload := JsonResponse{
 		Error:   false,
