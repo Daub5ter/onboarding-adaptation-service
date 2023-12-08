@@ -74,6 +74,18 @@ services:
       mode: replicated
       replicas: 1
 
+  logger-service:
+    build:
+      context: ./../logger-service
+      dockerfile: ./../logger-service/logger-service.dockerfile
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      MONGO_USERNAME: admin
+      MONGO_PASSWORD: password
+
   postgres:
     image: 'postgres:16.0'
     ports:
@@ -122,3 +134,15 @@ services:
       replicas: 1
     volumes:
       - ./db-data/rabbitmq/:/var/lib/rabbitmq/
+
+  #mongosh ${USERNAME} -u ${USERNAME} -p ${PASSWORD}
+  mongo:
+    image: 'mongo:7.0'
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: logs
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./db-data/mongo/:/data/db
