@@ -87,7 +87,8 @@ function Onboarding(props) {
 
 	const [statuses, setStatuses] = useState([])
 
-	if (statuses.length === 0) {
+	if (statuses.length === 0 && props.isLoggedIn) {
+		console.log("fetchUserKnowledge");
 		fetchUserKnowledge(props.id)
 			.then(data => {
 				if (data.error !== true) {
@@ -150,7 +151,8 @@ function Onboarding(props) {
 	const [percent, setPercent] = useState(0);
 	const [isPercentGot, getPercent] = useState(false);
 
-	if (!isPercentGot) {
+	if (!isPercentGot && props.isLoggedIn) {
+		console.log("fetchUserPercent");
 		fetchUserPercent(props.id)
 			.then(data => {
 				if (data.error !== true) {
